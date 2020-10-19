@@ -20,7 +20,7 @@ TH1D *dRwb;
 TH1D *reco_Jet_m;
 
 TProfile2D  *meanGenLevelDeltaR;
-TProfile2D  *meanGenLevelDeltaR_1;
+TH2F  *top_genptvm_occupancy;
 
 
 vector<float> vDijet_jet_pT_;
@@ -58,24 +58,24 @@ std::vector<std::vector<int> > seljet_pfcand_type;
 // Initialize branches _____________________________________________________//
 void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileService> &fs ) {
 
-  h_dijet_jet_pT    = fs->make<TH1D>("top_pT"  , "p_{T};p_{T};Particles", 300,  0., 1500.);
-  h_dijet_jet_E     = fs->make<TH1D>("top_E"   , "E;E;Particles"        , 100,  0., 800.);
-  h_dijet_jet_eta   = fs->make<TH1D>("top_eta" , "#eta;#eta;Particles"  , 100, -5., 5.);
+  h_dijet_jet_pT    = fs->make<TH1D>("top_pT"  , "p_{T};p_{T};Particles", 350,  0., 1500.);
+  h_dijet_jet_E     = fs->make<TH1D>("top_E"   , "E;E;Particles"        , 400,  0., 2000.);
+  h_dijet_jet_eta   = fs->make<TH1D>("top_eta" , "#eta;#eta;Particles"  , 350, -5., 5.);
   h_dijet_jet_nJet  = fs->make<TH1D>("top_nJet", "nJet;nJet;Events"     ,  10,  0., 10.);
-  h_dijet_jet_m0    = fs->make<TH1D>("top_m0"  , "m_0;m_0;Events"         , 100,  70., 270.);
+  h_dijet_jet_m0    = fs->make<TH1D>("top_m0"  , "m_0;m_0;Events"         , 100,  70., 520.);
   w_daughters = fs->make<TH1D>("w_daughters"  , "w_daughters;w_daughters;Events"         , 30,  0., 30.);
   top_daughter = fs->make<TH1D>("top_daughters"  , "top_daughters;top_daughters;Events"         , 30,  0., 30.);
 
-  reco_Jet_pT    = fs->make<TH1D>("reco_Jet_pT"  , "p_{T};p_{T};Particles", 300,  0., 1500.);
+  reco_Jet_pT    = fs->make<TH1D>("reco_Jet_pT"  , "p_{T};p_{T};Particles", 350,  0., 1500.);
   reco_Jet_eta    = fs->make<TH1D>("reco_Jet_eta"  , "#eta; #eta;Particles", 100,  -5, 5.);
   reco_Jet_phi    = fs->make<TH1D>("reco_Jet_phi"  , "phi;phi;Particles", 100,  -5., 100.);
   reco_Jet_R    = fs->make<TH1D>("reco_Jet_R"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
   dRwb    = fs->make<TH1D>("delta_R_w_b"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
-  reco_Jet_m    = fs->make<TH1D>("reco_Jet_m"  , "m;m;Events", 100, 70., 270.);
+  reco_Jet_m    = fs->make<TH1D>("reco_Jet_m"  , "m;m;Events", 100, 70., 520.);
 
-  meanGenLevelDeltaR = fs->make<TProfile2D>("meanGenLevelDeltaR", "Profile of mean Gen_Level Delta R",10, 70.,270.,10,0.,1500.);
+  meanGenLevelDeltaR = fs->make<TProfile2D>("meanGenLevelDeltaR", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
 
-  meanGenLevelDeltaR_1 = fs->make<TProfile2D>("meanGenLevelDeltaR", "Profile of mean Gen_Level Delta R",10, 70.,270.,10,0.,1500.);
+top_genptvm_occupancy = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
 
   tree->Branch("jetPt",  &vDijet_jet_pT_);
   tree->Branch("jetM",   &vDijet_jet_m0_);
@@ -124,7 +124,48 @@ const reco::Candidate* get_parent_with_stable_daughter( const reco::Candidate* i
 }
 
 
+int sum(vector <int> dist) {
+    return std::accumulate(dist.begin(), dist.end(), 0);
+}
 
+int max_element(vector <int> dist) {
+    int max = 0;
+    int s = dist.size();
+      for (int i = 0; i < s; i++) {
+        int el = dist[i];
+        if (max < el){max = el;}
+              }
+        return max;
+}
+
+vector <float> get_inverse_pdf(vector <int> dist) {
+    vector <float> invpdf(dist.size());
+      float summax = sum(dist) / max_element(dist);
+      int s = dist.size();
+      for (int i = 0; i < s; i++) {
+              if (dist[i] != 0 ) {invpdf[i] = summax / dist[i];}
+              else {invpdf[i] = 1;}
+                }
+          return invpdf;
+}
+
+float lookup_pt_invpdf(int pTgen, vector <int> pT_bins, vector <float> pT_invpdf) {
+    int ipt = 0;
+    int s1 = pT_bins.size();
+    int s2 = pT_invpdf.size();
+    for (int ib = 0; ib < s1; ib++) {
+            ipt = ib;
+            if (ib + 1 >  s2 - 1) { break; }
+            if (pTgen <= pT_bins[ib]) { break; }
+                        }
+        return pT_invpdf[ipt];
+}
+
+
+float get_rand_el(vector <int> dist) {
+    int randomIndex = rand() % dist.size();
+      return dist[randomIndex];
+}
 
 bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -145,9 +186,30 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   float dR;
   float dR_sum;
   int ir=0;
-    // main loop
+  vector <int> pT_bins = {0, 24, 32, 54, 30, 54, 56, 42, 36, 36, 36};
+  vector <int> m_bins = {0, 0, 0, 38, 98, 108, 90, 66, 0, 0, 0};
+  vector <float> m_invpdf = get_inverse_pdf(m_bins);
+  vector <float> pT_invpdf = get_inverse_pdf(pT_bins);
+  //std::cout << "pT" << sum(pT_bins) <<std::endl;
+  //std::cout << "m" << sum(m_bins) <<std::endl;
+  //for (int i=0; i<11; i++){
+  //  std::cout << "pT" << pT_invpdf[i] <<std::endl; 
+  //  std::cout << "m" << m_invpdf[i] << std::endl; 
+ // }
+  //vector <int> unbiased_pts(100);
+  // main loop
   for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
-   int id = iGen->pdgId();
+    double rand_sampler_pT = rand() / double(RAND_MAX);
+    //std::cout << " rand pT" << rand_sampler_pT  <<std::endl; 
+    float rand_sampler_m = rand() / double(RAND_MAX);
+    int pT_gen = iGen -> pt();
+    int m_gen = iGen -> mass();
+    float pT_wgt = lookup_pt_invpdf(pT_gen, pT_bins, pT_invpdf);
+    std::cout << " wgt pT" << pT_wgt  <<std::endl;
+    float m_wgt = lookup_pt_invpdf(m_gen, m_bins, m_invpdf);
+    if (rand_sampler_pT > pT_wgt) continue;
+    if (rand_sampler_m > m_wgt) continue;
+    int id = iGen->pdgId();
     if ( abs(id) != 6 ) continue;
     if ( iGen->numberOfDaughters() != 2 ) continue;
 
@@ -172,12 +234,16 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
       ir += 1;
       dR_sum +=dR;
-      std::cout << " >>>>>> jet[" << iJ << "] Pt:" << iJet->pt() << " jetEta:" << iJet->eta() << " jetPhi:" << iJet->phi() << " dR:" << dR << std::endl;
+      //std::cout << " >>>>>> jet[" << iJ << "] Pt:" << iJet->pt() << " jetEta:" << iJet->eta() << " jetPhi:" << iJet->phi() << " dR:" << dR << std::endl;
+      
+      
       //vDijet_jet_pT_.push_back( std::abs(p.pt()) );
       //vDijet_jet_m0_.push_back(p.mass() );
       //vDijet_jet_eta_.push_back(p.eta() );
       if ( dR > 0.8 ) continue;
-      std::cout << " >>>>>> DR matched: jet[" << iJ << "] pdgId:" << std::abs(iGen -> pdgId()) << std::endl;
+      //std::cout << " >>>>>> DR matched: jet[" << iJ << "] pdgId:" << std::abs(iGen -> pdgId()) << std::endl;
+      
+      
       reco_Jet_eta->Fill( iJet -> eta() );
       reco_Jet_phi->Fill(iJet -> phi());
       reco_Jet_R->Fill(dR);
@@ -196,7 +262,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     dR = reco::deltaR( iGen -> daughter(1)->eta(),iGen -> daughter(0)->phi(), iGen -> daughter(1)->eta(), iGen -> daughter(1)->phi() );
     dRwb -> Fill(dR);
     meanGenLevelDeltaR -> Fill(iGen -> mass(), iGen-> pt(), dR);
-    meanGenLevelDeltaR_1 -> Fill(iGen -> mass(), iGen-> pt(), 1.);
+    top_genptvm_occupancy -> Fill(iGen -> mass(), iGen-> pt(), 1.);
  }
   return true;
 }
