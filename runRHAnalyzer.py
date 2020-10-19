@@ -9,6 +9,7 @@ cfg='RecHitAnalyzer/python/ConfFile_cfg.py'
 # inputFiles_='root://cmsxrootd-site.fnal.gov//store/group/lpcml/CRAB_UserFiles/step2_ttbarOD_EmBj_01/190308_200019/0000/step2_OpenData_10.root'
 #inputFiles_='file:step2_OpenData_10.root'
 <<<<<<< HEAD
+<<<<<<< HEAD
 #inputFiles_='root://cmseos.fnal.gov//store/user/eusai/topgun01/200513_054612/0000/step_AODSIM_noPU_1.root'
 #inputFiles_='file:/afs/cern.ch/user/d/ddyachko/CMSSW_5_3_32/src/pgun/step_AODSIM_noPU.root'
 inputFiles_='file:step_AODSIM_noPU_1.root'
@@ -16,6 +17,11 @@ inputFiles_='file:step_AODSIM_noPU_1.root'
 inputFiles_='root://eosuser.cern.ch//eos/user/d/ddicroce/ML/MassReg/200804_005034/0000/step_AODSIM_noPU_100.root'
 #inputFiles_='file:/eos/user/d/ddicroce/ML/MassReg/200804_005034/0000/step_AODSIM_noPU_1.root'
 >>>>>>> 9839ae627321ad6d6ad334c9c8a316a67c68cdac
+=======
+#inputFiles_='root://cmseos.fnal.gov//store/user/eusai/topgun01/200513_054612/0000/step_AODSIM_noPU_1.root'
+#inputFiles_='file:/afs/cern.ch/user/d/ddyachko/CMSSW_5_3_32/src/pgun/step_AODSIM_noPU.root'
+inputFiles_='file:step_AODSIM_noPU_1.root'
+>>>>>>> 8eac91d05b699866847c61215605da18595f3f0c
 
 isTTbar_ = 1
 
