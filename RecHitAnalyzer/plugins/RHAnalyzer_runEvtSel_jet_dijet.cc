@@ -125,18 +125,15 @@ const reco::Candidate* get_parent_with_stable_daughter( const reco::Candidate* i
 
 
 int sum(vector <int> dist) {
-    return std::accumulate(dist.begin(), dist.end(), 0);
-}
+    return std::accumulate(dist.begin(), dist.end(), 0);}
 
 int max_element(vector <int> dist) {
     int max = 0;
     int s = dist.size();
       for (int i = 0; i < s; i++) {
         int el = dist[i];
-        if (max < el){max = el;}
-              }
-        return max;
-}
+        if (max < el){max = el;}}
+        return max;}
 
 vector <float> get_inverse_pdf(vector <int> dist) {
     vector <float> invpdf(dist.size());
@@ -144,8 +141,7 @@ vector <float> get_inverse_pdf(vector <int> dist) {
       int s = dist.size();
       for (int i = 0; i < s; i++) {
               if (dist[i] != 0 ) {invpdf[i] = summax / dist[i];}
-              else {invpdf[i] = 1;}
-                }
+              else {invpdf[i] = 1;}}
           return invpdf;
 }
 
@@ -156,16 +152,18 @@ float lookup_pt_invpdf(int pTgen, vector <int> pT_bins, vector <float> pT_invpdf
     for (int ib = 0; ib < s1; ib++) {
             ipt = ib;
             if (ib + 1 >  s2 - 1) { break; }
-            if (pTgen <= pT_bins[ib]) { break; }
-                        }
+            if (pTgen <= pT_bins[ib]) { break; }}
         return pT_invpdf[ipt];
 }
 
 
 float get_rand_el(vector <int> dist) {
-    int randomIndex = rand() % dist.size();
-      return dist[randomIndex];
+  int randomIndex = rand() % dist.size();
+  return dist[randomIndex];
 }
+
+
+
 
 bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -190,22 +188,13 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   vector <int> m_bins = {0, 0, 0, 38, 98, 108, 90, 66, 0, 0, 0};
   vector <float> m_invpdf = get_inverse_pdf(m_bins);
   vector <float> pT_invpdf = get_inverse_pdf(pT_bins);
-  //std::cout << "pT" << sum(pT_bins) <<std::endl;
-  //std::cout << "m" << sum(m_bins) <<std::endl;
-  //for (int i=0; i<11; i++){
-  //  std::cout << "pT" << pT_invpdf[i] <<std::endl; 
-  //  std::cout << "m" << m_invpdf[i] << std::endl; 
- // }
-  //vector <int> unbiased_pts(100);
   // main loop
   for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
     double rand_sampler_pT = rand() / double(RAND_MAX);
-    //std::cout << " rand pT" << rand_sampler_pT  <<std::endl; 
     float rand_sampler_m = rand() / double(RAND_MAX);
     int pT_gen = iGen -> pt();
     int m_gen = iGen -> mass();
     float pT_wgt = lookup_pt_invpdf(pT_gen, pT_bins, pT_invpdf);
-    std::cout << " wgt pT" << pT_wgt  <<std::endl;
     float m_wgt = lookup_pt_invpdf(m_gen, m_bins, m_invpdf);
     if (rand_sampler_pT > pT_wgt) continue;
     if (rand_sampler_m > m_wgt) continue;
