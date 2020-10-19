@@ -20,7 +20,11 @@ TH1D *dRwb;
 TH1D *reco_Jet_m;
 
 TProfile2D  *meanGenLevelDeltaR;
+<<<<<<< HEAD
 TH2F  *top_genptvm_occupancy;
+=======
+TH2F  *meanGenLevelDeltaR_1;
+>>>>>>> 9839ae627321ad6d6ad334c9c8a316a67c68cdac
 
 
 vector<float> vDijet_jet_pT_;
@@ -75,7 +79,11 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
 
   meanGenLevelDeltaR = fs->make<TProfile2D>("meanGenLevelDeltaR", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
 
+<<<<<<< HEAD
 top_genptvm_occupancy = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
+=======
+  meanGenLevelDeltaR_1 = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R",12, 43.5, 541.5, 12, 340., 1060.);
+>>>>>>> 9839ae627321ad6d6ad334c9c8a316a67c68cdac
 
   tree->Branch("jetPt",  &vDijet_jet_pT_);
   tree->Branch("jetM",   &vDijet_jet_m0_);
@@ -229,8 +237,8 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     // Loop over reconstructed jets
     for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
       reco::PFJetRef iJet( jets, iJ );
-      //if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
-      //if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
+      if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
+      if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
       dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
       ir += 1;
       dR_sum +=dR;
