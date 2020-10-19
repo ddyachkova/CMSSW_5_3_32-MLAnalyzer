@@ -163,6 +163,12 @@ float get_rand_el(vector <int> dist) {
 }
 
 
+bool resampling(int val){
+    double rand_sampler_pT = rand() / double(RAND_MAX);
+    float wgt = lookup_pt_invpdf(val, pT_bins, pT_invpdf);
+    if (rand_sampler_pT > wgt) {return false;}
+    else {return true;}
+}
 
 
 bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::EventSetup& iSetup )
@@ -190,14 +196,10 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   vector <float> pT_invpdf = get_inverse_pdf(pT_bins);
   // main loop
   for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
-    double rand_sampler_pT = rand() / double(RAND_MAX);
-    float rand_sampler_m = rand() / double(RAND_MAX);
     int pT_gen = iGen -> pt();
     int m_gen = iGen -> mass();
-    float pT_wgt = lookup_pt_invpdf(pT_gen, pT_bins, pT_invpdf);
-    float m_wgt = lookup_pt_invpdf(m_gen, m_bins, m_invpdf);
-    if (rand_sampler_pT > pT_wgt) continue;
-    if (rand_sampler_m > m_wgt) continue;
+    if (resampling(pT_gen) != true) continue;
+    if (resampling(m_gen) != true) continue;
     int id = iGen->pdgId();
     if ( abs(id) != 6 ) continue;
     if ( iGen->numberOfDaughters() != 2 ) continue;
