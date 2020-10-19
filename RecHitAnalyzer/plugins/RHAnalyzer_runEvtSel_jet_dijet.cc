@@ -190,13 +190,6 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   vector <int> m_bins = {0, 0, 0, 38, 98, 108, 90, 66, 0, 0, 0};
   vector <float> m_invpdf = get_inverse_pdf(m_bins);
   vector <float> pT_invpdf = get_inverse_pdf(pT_bins);
-  //std::cout << "pT" << sum(pT_bins) <<std::endl;
-  //std::cout << "m" << sum(m_bins) <<std::endl;
-  //for (int i=0; i<11; i++){
-  //  std::cout << "pT" << pT_invpdf[i] <<std::endl; 
-  //  std::cout << "m" << m_invpdf[i] << std::endl; 
- // }
-  //vector <int> unbiased_pts(100);
   // main loop
   for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
     double rand_sampler_pT = rand() / double(RAND_MAX);
@@ -229,8 +222,6 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     // Loop over reconstructed jets
     for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
       reco::PFJetRef iJet( jets, iJ );
-      //if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
-      //if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
       dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
       ir += 1;
       dR_sum +=dR;
