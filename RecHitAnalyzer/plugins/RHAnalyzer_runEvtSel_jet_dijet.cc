@@ -20,15 +20,8 @@ TH1D *dRwb;
 TH1D *reco_Jet_m;
 
 TProfile2D  *meanGenLevelDeltaR;
-<<<<<<< HEAD
-<<<<<<< HEAD
 TH2F  *top_genptvm_occupancy;
-=======
-TH2F  *meanGenLevelDeltaR_1;
->>>>>>> 9839ae627321ad6d6ad334c9c8a316a67c68cdac
-=======
-TH2F  *top_genptvm_occupancy;
->>>>>>> 8eac91d05b699866847c61215605da18595f3f0c
+
 
 
 vector<float> vDijet_jet_pT_;
@@ -82,16 +75,7 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
   reco_Jet_m    = fs->make<TH1D>("reco_Jet_m"  , "m;m;Events", 100, 70., 520.);
 
   meanGenLevelDeltaR = fs->make<TProfile2D>("meanGenLevelDeltaR", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-top_genptvm_occupancy = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
-=======
-  meanGenLevelDeltaR_1 = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R",12, 43.5, 541.5, 12, 340., 1060.);
->>>>>>> 9839ae627321ad6d6ad334c9c8a316a67c68cdac
-=======
-top_genptvm_occupancy = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
->>>>>>> 8eac91d05b699866847c61215605da18595f3f0c
+  top_genptvm_occupancy = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
 
   tree->Branch("jetPt",  &vDijet_jet_pT_);
   tree->Branch("jetM",   &vDijet_jet_m0_);
@@ -141,27 +125,17 @@ const reco::Candidate* get_parent_with_stable_daughter( const reco::Candidate* i
 
 
 int sum(vector <int> dist) {
-<<<<<<< HEAD
     return std::accumulate(dist.begin(), dist.end(), 0);
 }
-=======
-    return std::accumulate(dist.begin(), dist.end(), 0);}
->>>>>>> 8eac91d05b699866847c61215605da18595f3f0c
 
 int max_element(vector <int> dist) {
     int max = 0;
     int s = dist.size();
       for (int i = 0; i < s; i++) {
         int el = dist[i];
-<<<<<<< HEAD
-        if (max < el){max = el;}
-              }
+        if (max < el){max = el;}}
         return max;
 }
-=======
-        if (max < el){max = el;}}
-        return max;}
->>>>>>> 8eac91d05b699866847c61215605da18595f3f0c
 
 vector <float> get_inverse_pdf(vector <int> dist) {
     vector <float> invpdf(dist.size());
@@ -169,13 +143,8 @@ vector <float> get_inverse_pdf(vector <int> dist) {
       int s = dist.size();
       for (int i = 0; i < s; i++) {
               if (dist[i] != 0 ) {invpdf[i] = summax / dist[i];}
-<<<<<<< HEAD
               else {invpdf[i] = 1;}
                 }
-          return invpdf;
-}
-=======
-              else {invpdf[i] = 1;}}
           return invpdf;
 }
 
@@ -197,31 +166,13 @@ float get_rand_el(vector <int> dist) {
 }
 
 
-bool resampling(int val){
+bool resampling(int val, vector<int> bins, vector<float> invpdf){
     double rand_sampler_pT = rand() / double(RAND_MAX);
-    float wgt = lookup_pt_invpdf(val, pT_bins, pT_invpdf);
+    float wgt = lookup_pt_invpdf(val, bins, invpdf);
     if (rand_sampler_pT > wgt) {return false;}
     else {return true;}
 }
->>>>>>> 8eac91d05b699866847c61215605da18595f3f0c
 
-float lookup_pt_invpdf(int pTgen, vector <int> pT_bins, vector <float> pT_invpdf) {
-    int ipt = 0;
-    int s1 = pT_bins.size();
-    int s2 = pT_invpdf.size();
-    for (int ib = 0; ib < s1; ib++) {
-            ipt = ib;
-            if (ib + 1 >  s2 - 1) { break; }
-            if (pTgen <= pT_bins[ib]) { break; }
-                        }
-        return pT_invpdf[ipt];
-}
-
-
-float get_rand_el(vector <int> dist) {
-    int randomIndex = rand() % dist.size();
-      return dist[randomIndex];
-}
 
 bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -246,34 +197,12 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   vector <int> m_bins = {0, 0, 0, 38, 98, 108, 90, 66, 0, 0, 0};
   vector <float> m_invpdf = get_inverse_pdf(m_bins);
   vector <float> pT_invpdf = get_inverse_pdf(pT_bins);
-<<<<<<< HEAD
-  //std::cout << "pT" << sum(pT_bins) <<std::endl;
-  //std::cout << "m" << sum(m_bins) <<std::endl;
-  //for (int i=0; i<11; i++){
-  //  std::cout << "pT" << pT_invpdf[i] <<std::endl; 
-  //  std::cout << "m" << m_invpdf[i] << std::endl; 
- // }
-  //vector <int> unbiased_pts(100);
-  // main loop
-  for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
-    double rand_sampler_pT = rand() / double(RAND_MAX);
-    //std::cout << " rand pT" << rand_sampler_pT  <<std::endl; 
-    float rand_sampler_m = rand() / double(RAND_MAX);
-    int pT_gen = iGen -> pt();
-    int m_gen = iGen -> mass();
-    float pT_wgt = lookup_pt_invpdf(pT_gen, pT_bins, pT_invpdf);
-    std::cout << " wgt pT" << pT_wgt  <<std::endl;
-    float m_wgt = lookup_pt_invpdf(m_gen, m_bins, m_invpdf);
-    if (rand_sampler_pT > pT_wgt) continue;
-    if (rand_sampler_m > m_wgt) continue;
-=======
   // main loop
   for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
     int pT_gen = iGen -> pt();
     int m_gen = iGen -> mass();
-    if (resampling(pT_gen) != true) continue;
-    if (resampling(m_gen) != true) continue;
->>>>>>> 8eac91d05b699866847c61215605da18595f3f0c
+    if (resampling(pT_gen, pT_bins, pT_invpdf) != true) continue;
+    if (resampling(m_gen, pT_bins, pT_invpdf) != true) continue;
     int id = iGen->pdgId();
     if ( abs(id) != 6 ) continue;
     if ( iGen->numberOfDaughters() != 2 ) continue;
@@ -300,15 +229,11 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       ir += 1;
       dR_sum +=dR;
       //std::cout << " >>>>>> jet[" << iJ << "] Pt:" << iJet->pt() << " jetEta:" << iJet->eta() << " jetPhi:" << iJet->phi() << " dR:" << dR << std::endl;
-      
-      
       //vDijet_jet_pT_.push_back( std::abs(p.pt()) );
       //vDijet_jet_m0_.push_back(p.mass() );
       //vDijet_jet_eta_.push_back(p.eta() );
       if ( dR > 0.8 ) continue;
       //std::cout << " >>>>>> DR matched: jet[" << iJ << "] pdgId:" << std::abs(iGen -> pdgId()) << std::endl;
-      
-      
       reco_Jet_eta->Fill( iJet -> eta() );
       reco_Jet_phi->Fill(iJet -> phi());
       reco_Jet_R->Fill(dR);
