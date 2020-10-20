@@ -128,7 +128,7 @@ int sum(vector <int> dist) {
     return std::accumulate(dist.begin(), dist.end(), 0);
 }
 
-int max_element(vector <int> dist) {
+int max_element(vector <float> dist) {
     int max = 0;
     int s = dist.size();
       for (int i = 0; i < s; i++) {
@@ -139,13 +139,16 @@ int max_element(vector <int> dist) {
 
 vector <float> get_inverse_pdf(vector <int> dist) {
     vector <float> invpdf(dist.size());
-      float summax = sum(dist) / max_element(dist);
+      float sum_hist = sum(dist);
       int s = dist.size();
       for (int i = 0; i < s; i++) {
-              if (dist[i] != 0 ) {invpdf[i] = summax / dist[i];}
+              if (dist[i] != 0 ) {invpdf[i] = sum_hist / dist[i];}
               else {invpdf[i] = 1;}
                 }
-          return invpdf;
+      float max_invpdf = max_element(invpdf);
+      for (int i = 0; i < s; i++) {
+              invpdf[i] = invpdf[i] / max_invpdf;}
+      return invpdf;
 }
 
 float lookup_pt_invpdf(int pTgen, vector <int> pT_bins, vector <float> pT_invpdf) {
@@ -156,7 +159,7 @@ float lookup_pt_invpdf(int pTgen, vector <int> pT_bins, vector <float> pT_invpdf
             ipt = ib;
             if (ib + 1 >  s2 - 1) { break; }
             if (pTgen <= pT_bins[ib]) { break; }}
-        return pT_invpdf[ipt];
+    return pT_invpdf[ipt];
 }
 
 
