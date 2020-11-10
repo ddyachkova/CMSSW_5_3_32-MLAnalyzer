@@ -169,21 +169,25 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       reco::PFJetRef iJet( jets, iJ );
       if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
       if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
-      dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
+      //dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
+      dR = reco::deltaR( iJet->eta(),iJet->phi(), iJet->eta(), iJet->energy());
+      if ( dR > 0.6 ) continue;
       ir += 1;
       dR_sum +=dR;
       std::cout << " >>>>>> jet[" << iJ << "] Pt:" << iJet->pt() << " jetEta:" << iJet->eta() << " jetPhi:" << iJet->phi() << " dR:" << dR << std::endl;
       //vDijet_jet_pT_.push_back( std::abs(p.pt()) );
       //vDijet_jet_m0_.push_back(p.mass() );
       //vDijet_jet_eta_.push_back(p.eta() );
-      if ( dR > 0.8 ) continue;
+
+      //if ( dR > 0.8 ) continue;
       std::cout << " >>>>>> DR matched: jet[" << iJ << "] pdgId:" << std::abs(iGen -> pdgId()) << std::endl;
       reco_Jet_eta->Fill( iJet -> eta() );
       reco_Jet_phi->Fill(iJet -> phi());
       reco_Jet_R->Fill(dR);
       reco_Jet_m->Fill(iJet -> mass());
       reco_Jet_pT->Fill(iJet -> pt());
-       break;
+      meanGenLevelDeltaR_1 -> Fill(iGen -> mass(), iGen-> pt(), 1.);
+      break;
       } // reco jets
     i++;
     h_dijet_jet_pT->Fill( std::abs(iGen->pt()) );
@@ -196,7 +200,8 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     dR = reco::deltaR( iGen -> daughter(1)->eta(),iGen -> daughter(0)->phi(), iGen -> daughter(1)->eta(), iGen -> daughter(1)->phi() );
     dRwb -> Fill(dR);
     meanGenLevelDeltaR -> Fill(iGen -> mass(), iGen-> pt(), dR);
-    meanGenLevelDeltaR_1 -> Fill(iGen -> mass(), iGen-> pt(), 1.);
+    break;
+   // meanGenLevelDeltaR_1 -> Fill(iGen -> mass(), iGen-> pt(), 1.);
  }
   return true;
 }
@@ -229,7 +234,9 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   iEvent.getByLabel( edm::InputTag("genParticles") , genparticles);
 
   h_dijet_jet_nJet->Fill( vJetIdxs.size() );
+
   // Fill branches and histogras
+  /*
   for(int thisJetIdx : vJetIdxs){
     reco::PFJetRef thisJet( jets, thisJetIdx );
     if ( debug ) std::cout << " >> Jet[" << thisJetIdx << "] Pt:" << thisJet->pt() << std::endl;
@@ -247,8 +254,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
     h_dijet_jet_eta->Fill( thisJet->eta() );
     vDijet_jet_pT_.push_back( std::abs(thisJet->pt()) );
     vDijet_jet_m0_.push_back( thisJet->mass() );
-    vDijet_jet_eta_.push_back( thisJet->eta() );
-/*
+    vDijet_jet_eta_.push_back( thisJet->eta() );*
 
     seljet_px.push_back(thisJet->px());
     seljet_py.push_back(thisJet->py());
@@ -364,7 +370,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
     seljet_genpart_dau2pdgid.push_back(genpart_dau2pdgid);
 
   }//jet loop
-*/ 
-}
+*/
+
 }
  // fillEvtSel_jet_dijet()
