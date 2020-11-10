@@ -170,7 +170,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
       if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
       //dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
-      dR = reco::deltaR( iJet->eta(),iJet->phi(), iJet->eta(), iJet->energy());
+      dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi());
       if ( dR > 0.6 ) continue;
       ir += 1;
       dR_sum +=dR;
