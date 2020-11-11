@@ -200,7 +200,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     dR = reco::deltaR( iGen -> daughter(1)->eta(),iGen -> daughter(0)->phi(), iGen -> daughter(1)->eta(), iGen -> daughter(1)->phi() );
     dRwb -> Fill(dR);
     meanGenLevelDeltaR -> Fill(iGen -> mass(), iGen-> pt(), dR);
-    break;
+    //break;
    // meanGenLevelDeltaR_1 -> Fill(iGen -> mass(), iGen-> pt(), 1.);
  }
   return true;
