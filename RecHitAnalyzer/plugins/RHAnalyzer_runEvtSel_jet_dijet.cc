@@ -128,11 +128,11 @@ int sum(vector <int> dist) {
     return std::accumulate(dist.begin(), dist.end(), 0);
 }
 
-int max_element(vector <float> dist) {
-    int max = 0;
+float max_element(vector <float> dist) {
+    float max = 0;
     int s = dist.size();
       for (int i = 0; i < s; i++) {
-        int el = dist[i];
+        float el = dist[i];
         if (max < el){max = el;}}
         return max;
 }
@@ -196,8 +196,8 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   float dR;
   float dR_sum;
   int ir=0;
-  vector <int> pT_bins = {0, 24, 32, 54, 30, 54, 56, 42, 36, 36, 36};
-  vector <int> m_bins = {0, 0, 0, 38, 98, 108, 90, 66, 0, 0, 0};
+  vector <int> pT_bins = {0,0,603,583,526,458,502,472,461,446,448,487,0};
+  vector <int> m_bins = {0,0,166,380,441,505,600,581,571,562,578,602,0};
   vector <float> m_invpdf = get_inverse_pdf(m_bins);
   vector <float> pT_invpdf = get_inverse_pdf(pT_bins);
   // main loop
