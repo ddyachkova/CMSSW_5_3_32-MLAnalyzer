@@ -1,5 +1,16 @@
 import os
 
+
+
+import optparse
+
+parser = optparse.OptionParser()
+parser.add_option("--ind", help="input/output file index",type=str)
+(options, args) = parser.parse_args()
+ind = options.ind
+
+
+
 cfg='RecHitAnalyzer/python/ConfFile_cfg.py'
 #inputFiles_='root://cmsxrootd-site.fnal.gov//store/group/lpcml/eusai/step2_ttbar_p8_03/step2_qcd8_1109.root'
 #inputFiles_='file:../step_full.root'
@@ -13,7 +24,7 @@ cfg='RecHitAnalyzer/python/ConfFile_cfg.py'
 #inputFiles_='file:step_AODSIM_noPU_1.root'
 
 
-inputFiles_='file:/eos/user/a/amslivar/ML_job_2020/200804_005034/0000/step_AODSIM_noPU_1.root'
+inputFiles_='file:/eos/user/a/amslivar/ML_job_2020/200804_005034/0000/step_AODSIM_noPU_%s.root'%ind
 
 
 #inputFiles_='root://eosuser.cern.ch//eos/user/d/ddicroce/ML/MassReg/200804_005034/0000/step_AODSIM_noPU_100.root'
@@ -23,9 +34,9 @@ inputFiles_='file:/eos/user/a/amslivar/ML_job_2020/200804_005034/0000/step_AODSI
 #inputFiles_='file:step_AODSIM_noPU_1.root'
 isTTbar_ = 1
 
-maxEvents_=-1
+maxEvents_=-2
 #skipEvents_=0#
-outputFile_ = 'test.root'
+outputFile_ = 'test_%s.root'%ind
 #outputFile_ = 'test/ttbar_new-production_test.root'
 
 cmd="cmsRun %s inputFiles=%s outputFile=%s isTTbar=%d maxEv=%d" %(cfg,inputFiles_,outputFile_,isTTbar_,maxEvents_)

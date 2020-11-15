@@ -124,8 +124,8 @@ const reco::Candidate* get_parent_with_stable_daughter( const reco::Candidate* i
 }
 
 
-int sum(vector <int> dist) {
-    return std::accumulate(dist.begin(), dist.end(), 0);
+float sum(vector <float> dist) {
+  return std::accumulate(dist.begin(), dist.end(), 0.0);
 }
 
 float max_element(vector <float> dist) {
@@ -137,21 +137,25 @@ float max_element(vector <float> dist) {
         return max;
 }
 
-vector <float> get_inverse_pdf(vector <int> dist) {
-    vector <float> invpdf(dist.size());
+vector <float> get_inverse_pdf(vector <float> dist) {
+      vector <float> invpdf(dist.size());
       float sum_hist = sum(dist);
+      std::cout << "sum_hist " << sum_hist << std::endl;
       int s = dist.size();
+      std::cout << "dist size " << s << std::endl;
       for (int i = 0; i < s; i++) {
-              if (dist[i] != 0 ) {invpdf[i] = sum_hist / dist[i];}
-              else {invpdf[i] = 1;}
+              //if (dist[i] != 0 ) {invpdf[i] = sum_hist / dist[i];}
+              invpdf[i] = sum_hist / dist[i];
+              //else {invpdf[i] = 1;}
                 }
       float max_invpdf = max_element(invpdf);
+      std::cout << "max " << max_invpdf << std::endl;
       for (int i = 0; i < s; i++) {
               invpdf[i] = invpdf[i] / max_invpdf;}
       return invpdf;
 }
 
-float lookup_pt_invpdf(int pTgen, vector <int> pT_bins, vector <float> pT_invpdf) {
+float lookup_pt_invpdf(float pTgen, vector <float> pT_bins, vector <float> pT_invpdf) {
     int ipt = 0;
     int s1 = pT_bins.size();
     int s2 = pT_invpdf.size();
@@ -169,9 +173,11 @@ float get_rand_el(vector <int> dist) {
 }
 
 
-bool resampling(int val, vector<int> bins, vector<float> invpdf){
+bool resampling(float val, vector<float> bins, vector<float> invpdf){
     double rand_sampler_pT = rand() / double(RAND_MAX);
+    //std::cout << "rand" << rand_sampler_pT << std::endl;
     float wgt = lookup_pt_invpdf(val, bins, invpdf);
+    //std::cout << "wgt" << wgt << std::endl;
     if (rand_sampler_pT > wgt) {return false;}
     else {return true;}
 }
@@ -196,14 +202,36 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   float dR;
   float dR_sum;
   int ir=0;
-  vector <int> pT_bins = {0,0,603,583,526,458,502,472,461,446,448,487,0};
-  vector <int> m_bins = {0,0,166,380,441,505,600,581,571,562,578,602,0};
-  vector <float> m_invpdf = get_inverse_pdf(m_bins);
-  vector <float> pT_invpdf = get_inverse_pdf(pT_bins);
+  //vector <int> pT_hist = {603,583,526,458,502,472,461,446,448,487};
+  //vector <int> m_hist = {166,380,441,505,600,581,571,562,578,602};
+  vector <float> m_hist = {0.0332932,0.0762134,0.0884477,0.101284,0.120337,0.116526,0.114521,0.112716,0.115925,0.12073};
+  vector <float> pT_hist = {0.120939,0.116927,0.105495,0.0918572,0.100682,0.0946651,0.0924589,0.0894505,0.0898516,0.0976735};
+  //vector <float> pT_bins = {400, 430,490,550,610,670,730,790,850,910,970, 1000};
+  //vector <float> m_bins = {85, 105.75,147.25,188.75,230.25,271.75,313.25,354.75,396.25,437.75,479.25,500};
+  vector <float> pT_bins = {400.,  460.,  520.,  580.,  640.,  700.,  760.,  820.,  880.,
+          940., 1000.};
+  vector <float> m_bins = {85. , 126.5, 168. , 209.5, 251. , 292.5, 334. , 375.5, 417. ,
+         458.5, 500. };
+  
+  vector <float> m_invpdf = get_inverse_pdf(m_hist);
+  int m_hist_size = m_hist.size();
+  std::cout << "hist " << std::endl;
+  for (int i=0; i< m_hist_size; i++) {std::cout << m_hist[i] << " ";}
+  std::cout << std::endl;
+  
+  int m_size = m_invpdf.size();
+  for (int i=0; i< m_size; i++) {std::cout << m_invpdf[i] << " ";}
+  std::cout << std::endl;
+  
+  vector <float> pT_invpdf = get_inverse_pdf(pT_hist);
+  int pT_size = pT_invpdf.size();
+  for (int i=0; i< pT_size; i++) {std::cout << pT_invpdf[i] << " ";}
+  std::cout << std::endl;
   // main loop
   for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
-    int pT_gen = iGen -> pt();
-    int m_gen = iGen -> mass();
+    float pT_gen = iGen -> pt();
+    //std::cout << "pT_gen" << pT_gen << "   ";
+    float m_gen = iGen -> mass();
     if (resampling(pT_gen, pT_bins, pT_invpdf) != true) continue;
     if (resampling(m_gen, pT_bins, pT_invpdf) != true) continue;
     int id = iGen->pdgId();
@@ -237,6 +265,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       //vDijet_jet_eta_.push_back(p.eta() );
       if ( dR > 0.8 ) continue;
       //std::cout << " >>>>>> DR matched: jet[" << iJ << "] pdgId:" << std::abs(iGen -> pdgId()) << std::endl;
+      top_genptvm_occupancy -> Fill(iGen -> mass(), iGen-> pt(), 1.);
       reco_Jet_eta->Fill( iJet -> eta() );
       reco_Jet_phi->Fill(iJet -> phi());
       reco_Jet_R->Fill(dR);
@@ -255,7 +284,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     dR = reco::deltaR( iGen -> daughter(1)->eta(),iGen -> daughter(0)->phi(), iGen -> daughter(1)->eta(), iGen -> daughter(1)->phi() );
     dRwb -> Fill(dR);
     meanGenLevelDeltaR -> Fill(iGen -> mass(), iGen-> pt(), dR);
-    top_genptvm_occupancy -> Fill(iGen -> mass(), iGen-> pt(), 1.);
+    //top_genptvm_occupancy -> Fill(iGen -> mass(), iGen-> pt(), 1.);
  }
   return true;
 }
