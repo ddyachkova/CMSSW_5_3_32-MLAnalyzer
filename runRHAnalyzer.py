@@ -34,7 +34,7 @@ inputFiles_='file:/eos/user/a/amslivar/ML_job_2020/200804_005034/0000/step_AODSI
 #inputFiles_='file:step_AODSIM_noPU_1.root'
 isTTbar_ = 1
 
-maxEvents_=-2
+maxEvents_=-1
 #skipEvents_=0#
 outputFile_ = 'test_%s.root'%ind
 #outputFile_ = 'test/ttbar_new-production_test.root'

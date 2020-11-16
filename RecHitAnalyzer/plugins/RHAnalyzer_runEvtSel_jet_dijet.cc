@@ -75,7 +75,7 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
   reco_Jet_m    = fs->make<TH1D>("reco_Jet_m"  , "m;m;Events", 100, 70., 520.);
 
   meanGenLevelDeltaR = fs->make<TProfile2D>("meanGenLevelDeltaR", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
-  top_genptvm_occupancy = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
+  top_genptvm_occupancy = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R", 12, 43.5, 541.5, 12, 340., 1060.);
 
   tree->Branch("jetPt",  &vDijet_jet_pT_);
   tree->Branch("jetM",   &vDijet_jet_m0_);
@@ -144,14 +144,11 @@ vector <float> get_inverse_pdf(vector <float> dist) {
       int s = dist.size();
       std::cout << "dist size " << s << std::endl;
       for (int i = 0; i < s; i++) {
-              //if (dist[i] != 0 ) {invpdf[i] = sum_hist / dist[i];}
-              invpdf[i] = sum_hist / dist[i];
-              //else {invpdf[i] = 1;}
-                }
+        if (dist[i] != 0) {invpdf[i] = sum_hist / dist[i];}
+        else {invpdf[i] = 0;}}
       float max_invpdf = max_element(invpdf);
       std::cout << "max " << max_invpdf << std::endl;
-      for (int i = 0; i < s; i++) {
-              invpdf[i] = invpdf[i] / max_invpdf;}
+      for (int i = 0; i < s; i++) {invpdf[i] = invpdf[i] / max_invpdf;}
       return invpdf;
 }
 
@@ -161,8 +158,9 @@ float lookup_pt_invpdf(float pTgen, vector <float> pT_bins, vector <float> pT_in
     int s2 = pT_invpdf.size();
     for (int ib = 0; ib < s1; ib++) {
             ipt = ib;
-            if (ib + 1 >  s2 - 1) { break; }
+            if (ib + 1 >  s2 - 1) { break; } // s1 - 1
             if (pTgen <= pT_bins[ib]) { break; }}
+    //std::cout << "ipt " << ipt << std::endl;
     return pT_invpdf[ipt];
 }
 
@@ -175,11 +173,12 @@ float get_rand_el(vector <int> dist) {
 
 bool resampling(float val, vector<float> bins, vector<float> invpdf){
     double rand_sampler_pT = rand() / double(RAND_MAX);
-    //std::cout << "rand" << rand_sampler_pT << std::endl;
     float wgt = lookup_pt_invpdf(val, bins, invpdf);
-    //std::cout << "wgt" << wgt << std::endl;
     if (rand_sampler_pT > wgt) {return false;}
-    else {return true;}
+    else {
+      std::cout << "rand" << rand_sampler_pT << std::endl;
+      std::cout << "wgt" << wgt << std::endl;
+      return true;}
 }
 
 
@@ -202,16 +201,10 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   float dR;
   float dR_sum;
   int ir=0;
-  //vector <int> pT_hist = {603,583,526,458,502,472,461,446,448,487};
-  //vector <int> m_hist = {166,380,441,505,600,581,571,562,578,602};
-  vector <float> m_hist = {0.0332932,0.0762134,0.0884477,0.101284,0.120337,0.116526,0.114521,0.112716,0.115925,0.12073};
-  vector <float> pT_hist = {0.120939,0.116927,0.105495,0.0918572,0.100682,0.0946651,0.0924589,0.0894505,0.0898516,0.0976735};
-  //vector <float> pT_bins = {400, 430,490,550,610,670,730,790,850,910,970, 1000};
-  //vector <float> m_bins = {85, 105.75,147.25,188.75,230.25,271.75,313.25,354.75,396.25,437.75,479.25,500};
-  vector <float> pT_bins = {400.,  460.,  520.,  580.,  640.,  700.,  760.,  820.,  880.,
-          940., 1000.};
-  vector <float> m_bins = {85. , 126.5, 168. , 209.5, 251. , 292.5, 334. , 375.5, 417. ,
-         458.5, 500. };
+  vector <float> m_hist = {0.0976735,0.0898516,0.0894505,0.0924589,0.0946651,0.100682,0.0918572,0.105495,0.116927,0.120939};
+  vector <float> pT_hist = {0.120738,0.115925,0.112716,0.114521,0.116526,0.120337,0.101284,0.0884477,0.0762134,0.0332932};
+  vector <float> pT_bins = {400,460,520,580,640,700,760,820,880,940,1000};
+  vector <float> m_bins = {85,126.5,168,209.5,251,292.5,334,375.5,417,458.5,500};
   
   vector <float> m_invpdf = get_inverse_pdf(m_hist);
   int m_hist_size = m_hist.size();
@@ -232,11 +225,13 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     float pT_gen = iGen -> pt();
     //std::cout << "pT_gen" << pT_gen << "   ";
     float m_gen = iGen -> mass();
-    if (resampling(pT_gen, pT_bins, pT_invpdf) != true) continue;
-    if (resampling(m_gen, pT_bins, pT_invpdf) != true) continue;
     int id = iGen->pdgId();
     if ( abs(id) != 6 ) continue;
     if ( iGen->numberOfDaughters() != 2 ) continue;
+    if (resampling(pT_gen, pT_bins, pT_invpdf) != true) continue;
+    if (resampling(m_gen, m_bins, m_invpdf) != true) continue;
+    std::cout << "pT gen " << pT_gen << std::endl; 
+    std::cout << "m gen " << m_gen << std::endl; 
 
     // Top daughter loop
     for ( unsigned int iD = 0; iD < iGen->numberOfDaughters(); iD++ ) {
