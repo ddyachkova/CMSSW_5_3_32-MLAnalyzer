@@ -69,6 +69,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   v_dR_jet_W.clear();
   v_dR_jet_b.clear();
   v_dR_jet_genTop.clear();
+  v_jetIdxs.clear(); 
 
   // int nJet = 0;
   int i=0;
@@ -124,6 +125,8 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   edm::Handle<reco::PFJetCollection> jets;
   iEvent.getByLabel(jetCollectionT_, jets);
 
+  //edm::Handle<reco::GenParticleCollection> genParticles;
+  //iEvent.getByLabel(genParticleCollectionT_, genParticles);
   edm::Handle<std::vector<reco::GenParticle> > genparticles;
   iEvent.getByLabel( edm::InputTag("genParticles") , genparticles);
 
@@ -134,8 +137,9 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
     v_jet_pT_.push_back( std::abs(thisJet->pt()) );
     v_jet_m0_.push_back( thisJet->mass() );
 }
+
   for(int thisGenIdx : vGenIdxs){
-    reco::GenParticle thisGen( genparticles, thisGenIdx );
+    reco::GenParticleCollection::const_iterator thisGen = genparticles-> begin() + thisGenIdx;
     if ( debug ) std::cout << " >> Gen[" << thisGenIdx << "] Pt:" << thisGen->pt() << std::endl;
     v_gen_pT_.push_back( std::abs(thisGen->pt()) );
     v_gen_m0_.push_back( thisGen->mass() );
