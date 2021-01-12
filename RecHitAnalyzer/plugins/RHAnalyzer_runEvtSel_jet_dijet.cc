@@ -58,6 +58,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
 
   vJetIdxs.clear();
+  vGenIdxs.clear();
 
   v_gen_pT_.clear();
   v_gen_m0_.clear();
@@ -90,10 +91,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       dR_sum +=dR;
       if ( dR > 0.8 ) continue;
       vJetIdxs.push_back(iJ);
-<<<<<<< HEAD
-  //    v_genIdxs.push_back(iGen);
-=======
->>>>>>> 94d590c518e6634378263b5fd02ec552c9aca639
+      vGenIdxs.push_back(iGen);
 
       if (abs(iGen -> daughter(0) -> pdgId()) == 24) { 
         float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) -> phi());
