@@ -3,6 +3,7 @@
 
 using std::vector;
 
+/*
 TH1D *h_dijet_jet_pT;
 TH1D *h_dijet_jet_E;
 TH1D *h_dijet_jet_eta;
@@ -18,47 +19,31 @@ TH1D *reco_Jet_phi;
 TH1D *reco_Jet_R;
 TH1D *dRwb;
 TH1D *reco_Jet_m;
+TH1D*h_R_jet_W;
+TH1D*h_R_jet_b;
+TH1D*h_R_jet_genTop;
 
 TProfile2D  *meanGenLevelDeltaR;
 TH2F  *top_genptvm_occupancy;
+*/
 
 
+vector<float> v_gen_pT_;
+vector<float> v_jet_pT_;
 
-vector<float> vDijet_jet_pT_;
-vector<float> vDijet_jet_m0_;
-vector<float> vDijet_jet_eta_;
+vector<float> v_gen_m0_;
+vector<float> v_jet_m0_;
+
+vector<float> v_jetIdxs;
+
+vector<float> v_dR_jet_W;
+vector<float> v_dR_jet_b;
+vector<float> v_dR_jet_genTop;
 
 
-
-std::vector<std::vector<int> > seljet_genpart_collid;
-std::vector<std::vector<int> > seljet_genpart_pdgid;
-std::vector<std::vector<int> > seljet_genpart_charge;
-
-std::vector<std::vector<float> > seljet_genpart_px;
-std::vector<std::vector<float> > seljet_genpart_py;
-std::vector<std::vector<float> > seljet_genpart_pz;
-std::vector<std::vector<float> > seljet_genpart_energy;
-
-std::vector<std::vector<int> > seljet_genpart_status;
-
-std::vector<std::vector<int> > seljet_genpart_motherpdgid;
-std::vector<std::vector<int> > seljet_genpart_dau1pdgid;
-std::vector<std::vector<int> > seljet_genpart_dau2pdgid;
-
-std::vector<float> seljet_px;
-std::vector<float> seljet_py;
-std::vector<float> seljet_pz;
-std::vector<float> seljet_energy;
-
-std::vector<std::vector<float> > seljet_pfcand_px;
-std::vector<std::vector<float> > seljet_pfcand_py;
-std::vector<std::vector<float> > seljet_pfcand_pz;
-std::vector<std::vector<float> > seljet_pfcand_energy;
-std::vector<std::vector<int> > seljet_pfcand_type;
-
-// Initialize branches _____________________________________________________//
+//Initialize branches _____________________________________________________//
 void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileService> &fs ) {
-
+/*
   h_dijet_jet_pT    = fs->make<TH1D>("top_pT"  , "p_{T};p_{T};Particles", 350,  0., 1500.);
   h_dijet_jet_E     = fs->make<TH1D>("top_E"   , "E;E;Particles"        , 400,  0., 2000.);
   h_dijet_jet_eta   = fs->make<TH1D>("top_eta" , "#eta;#eta;Particles"  , 350, -5., 5.);
@@ -71,44 +56,26 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
   reco_Jet_eta    = fs->make<TH1D>("reco_Jet_eta"  , "#eta; #eta;Particles", 100,  -5, 5.);
   reco_Jet_phi    = fs->make<TH1D>("reco_Jet_phi"  , "phi;phi;Particles", 100,  -5., 100.);
   reco_Jet_R    = fs->make<TH1D>("reco_Jet_R"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
+  h_R_jet_W    = fs->make<TH1D>("dR(Jet, W)"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
+  h_R_jet_b    = fs->make<TH1D>("dR (Jet, b)"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
+  h_R_jet_genTop    = fs->make<TH1D>("dR (Jet, GenTop)"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
   dRwb    = fs->make<TH1D>("delta_R_w_b"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
   reco_Jet_m    = fs->make<TH1D>("reco_Jet_m"  , "m;m;Events", 100, 70., 520.);
 
   meanGenLevelDeltaR = fs->make<TProfile2D>("meanGenLevelDeltaR", "Profile of mean Gen_Level Delta R",10, 70.,520.,10,0.,1500.);
   top_genptvm_occupancy = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R", 12, 43.5, 541.5, 12, 340., 1060.);
+*/
+  tree->Branch("jet_pT",  &v_gen_pT_);
+  tree->Branch("jet_m0",   &v_gen_m0_);
 
-  tree->Branch("jetPt",  &vDijet_jet_pT_);
-  tree->Branch("jetM",   &vDijet_jet_m0_);
-  tree->Branch("jetEta", &vDijet_jet_eta_);
+  tree->Branch("gen_pT",  &v_jet_pT_);
+  tree->Branch("gen_m0",   &v_jet_m0_);
 
+  tree->Branch("jetIdxs",  &v_jetIdxs);
 
-
-  tree->Branch("seljet_genpart_collid", &seljet_genpart_collid);
-  tree->Branch("seljet_genpart_pdgid", &seljet_genpart_pdgid);
-  tree->Branch("seljet_genpart_charge", &seljet_genpart_charge);
-
-  tree->Branch("seljet_genpart_px", &seljet_genpart_px);
-  tree->Branch("seljet_genpart_py", &seljet_genpart_py);
-  tree->Branch("seljet_genpart_pz", &seljet_genpart_pz);
-  tree->Branch("seljet_genpart_energy", &seljet_genpart_energy);
-
-  tree->Branch("seljet_genpart_status", &seljet_genpart_status);
-
-  tree->Branch("seljet_genpart_motherpdgid", &seljet_genpart_motherpdgid);
-  tree->Branch("seljet_genpart_dau1pdgid", &seljet_genpart_dau1pdgid);
-  tree->Branch("seljet_genpart_dau2pdgid", &seljet_genpart_dau2pdgid);
-
-
-  tree->Branch("seljet_px", &seljet_px);
-  tree->Branch("seljet_py", &seljet_py);
-  tree->Branch("seljet_pz", &seljet_pz);
-  tree->Branch("seljet_energy", &seljet_energy);
-
-  tree->Branch("seljet_pfcand_px", &seljet_pfcand_px);
-  tree->Branch("seljet_pfcand_py", &seljet_pfcand_py);
-  tree->Branch("seljet_pfcand_pz", &seljet_pfcand_pz);
-  tree->Branch("seljet_pfcand_energy", &seljet_pfcand_energy);
-  tree->Branch("seljet_pfcand_type", &seljet_pfcand_type);
+  tree->Branch("dR(jet, W)",   &v_dR_jet_W);
+  tree->Branch("dR(jet, b)",  &v_dR_jet_b);
+  tree->Branch("dR(jet, genTop)",   &v_dR_jet_genTop);
 
 } // branchesEvtSel_jet_dijet()
 
@@ -190,10 +157,14 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   iEvent.getByLabel(jetCollectionT_, jets);
   iEvent.getByLabel(genParticleCollectionT_, genParticles);
 
-  vJetIdxs.clear();
-  vDijet_jet_pT_.clear();
-  vDijet_jet_m0_.clear();
-  vDijet_jet_eta_.clear();
+
+  v_gen_pT_.clear();
+  v_gen_m0_.clear();
+  v_jetIdxs.clear();
+
+  v_dR_jet_W.clear();
+  v_dR_jet_b.clear();
+  v_dR_jet_genTop.clear();
 
   // std::vector<TLorentzVector> had_tops,bdau,wdau;
   // int nJet = 0;
@@ -201,38 +172,12 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   float dR;
   float dR_sum;
   int ir=0;
-  vector <float> m_hist = {0.0976735,0.0898516,0.0894505,0.0924589,0.0946651,0.100682,0.0918572,0.105495,0.116927,0.120939};
-  vector <float> pT_hist = {0.120738,0.115925,0.112716,0.114521,0.116526,0.120337,0.101284,0.0884477,0.0762134,0.0332932};
-  vector <float> pT_bins = {400,460,520,580,640,700,760,820,880,940,1000};
-  vector <float> m_bins = {85,126.5,168,209.5,251,292.5,334,375.5,417,458.5,500};
-  
-  vector <float> m_invpdf = get_inverse_pdf(m_hist);
-  int m_hist_size = m_hist.size();
-  std::cout << "hist " << std::endl;
-  for (int i=0; i< m_hist_size; i++) {std::cout << m_hist[i] << " ";}
-  std::cout << std::endl;
-  
-  int m_size = m_invpdf.size();
-  for (int i=0; i< m_size; i++) {std::cout << m_invpdf[i] << " ";}
-  std::cout << std::endl;
-  
-  vector <float> pT_invpdf = get_inverse_pdf(pT_hist);
-  int pT_size = pT_invpdf.size();
-  for (int i=0; i< pT_size; i++) {std::cout << pT_invpdf[i] << " ";}
-  std::cout << std::endl;
   // main loop
   for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
-    float pT_gen = iGen -> pt();
-    //std::cout << "pT_gen" << pT_gen << "   ";
-    float m_gen = iGen -> mass();
     int id = iGen->pdgId();
     if ( abs(id) != 6 ) continue;
     if ( iGen->numberOfDaughters() != 2 ) continue;
-    if (resampling(pT_gen, pT_bins, pT_invpdf) != true) continue;
-    if (resampling(m_gen, m_bins, m_invpdf) != true) continue;
-    std::cout << "pT gen " << pT_gen << std::endl; 
-    std::cout << "m gen " << m_gen << std::endl; 
-
+/*
     // Top daughter loop
     for ( unsigned int iD = 0; iD < iGen->numberOfDaughters(); iD++ ) {
       const reco::Candidate* topd = iGen->daughter(iD);
@@ -245,7 +190,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
         w_daughters -> Fill(std::abs(w_daughter -> pdgId()));
       }
     } // Top daughter loop
-
+*/
     // Loop over reconstructed jets
     for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
       reco::PFJetRef iJet( jets, iJ );
@@ -260,25 +205,60 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       //vDijet_jet_eta_.push_back(p.eta() );
       if ( dR > 0.8 ) continue;
       //std::cout << " >>>>>> DR matched: jet[" << iJ << "] pdgId:" << std::abs(iGen -> pdgId()) << std::endl;
-      top_genptvm_occupancy -> Fill(iGen -> mass(), iGen-> pt(), 1.);
+      //top_genptvm_occupancy -> Fill(iGen -> mass(), iGen-> pt(), 1.) ;
+      if (abs(iGen -> daughter(0) -> pdgId()) == 24) { 
+        float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) -> phi());
+        float dR_jet_b = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(1) -> eta(), iGen -> daughter(1) ->phi());
+        v_dR_jet_W.push_back(dR_jet_W);
+        v_dR_jet_b.push_back(dR_jet_b);
+     /*
+        h_R_jet_W -> Fill(dR_jet_W);
+        h_R_jet_b -> Fill(dR_jet_b);
+        */
+      }
+      else if (abs(iGen -> daughter(0) -> pdgId()) == 5) {
+        float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(1) -> eta(), iGen -> daughter(1) -> phi());
+        float dR_jet_b = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) ->phi());
+        v_dR_jet_W.push_back(dR_jet_W);
+        v_dR_jet_b.push_back(dR_jet_b);
+ /*
+        h_R_jet_W -> Fill(dR_jet_W);
+        h_R_jet_b -> Fill(dR_jet_b);
+   */
+        }
+      float dR_jet_genTop = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> eta(), iGen -> phi());
+
+
+/*
       reco_Jet_eta->Fill( iJet -> eta() );
       reco_Jet_phi->Fill(iJet -> phi());
       reco_Jet_R->Fill(dR);
       reco_Jet_m->Fill(iJet -> mass());
       reco_Jet_pT->Fill(iJet -> pt());
-       break;
+
+      h_R_jet_genTop -> Fill(dR_jet_genTop);
+
+      h_dijet_jet_pT->Fill( std::abs(iGen->pt()) );
+      h_dijet_jet_E->Fill( iGen->energy() );
+      h_dijet_jet_m0->Fill( iGen->mass() );
+      h_dijet_jet_eta->Fill( iGen->eta() );
+  */
+      v_jetIdxs.push_back(iJ);
+      std::cout << "iJ" << iJ << std::endl; 
+      v_gen_pT_.push_back( std::abs(iGen->pt()) );
+      std::cout << "Gen pT" << iGen -> pt() << std::endl; 
+      v_gen_m0_.push_back(iGen->mass() );
+      std::cout << "Gen Mass" << iGen->mass()  << std::endl; 
+      v_dR_jet_genTop.push_back(dR_jet_genTop);
+      std::cout << "dR" << dR_jet_genTop << std::endl; 
+
+ 
+      break;
       } // reco jets
     i++;
-    h_dijet_jet_pT->Fill( std::abs(iGen->pt()) );
-    h_dijet_jet_E->Fill( iGen->energy() );
-    h_dijet_jet_m0->Fill( iGen->mass() );
-    h_dijet_jet_eta->Fill( iGen->eta() );
-    vDijet_jet_pT_.push_back( std::abs(iGen->pt()) );
-    vDijet_jet_m0_.push_back(iGen->mass() );
-    vDijet_jet_eta_.push_back(iGen->eta() );
     dR = reco::deltaR( iGen -> daughter(1)->eta(),iGen -> daughter(0)->phi(), iGen -> daughter(1)->eta(), iGen -> daughter(1)->phi() );
-    dRwb -> Fill(dR);
-    meanGenLevelDeltaR -> Fill(iGen -> mass(), iGen-> pt(), dR);
+    //dRwb -> Fill(dR);
+    //meanGenLevelDeltaR -> Fill(iGen -> mass(), iGen-> pt(), dR);
     //top_genptvm_occupancy -> Fill(iGen -> mass(), iGen-> pt(), 1.);
  }
   return true;
@@ -286,6 +266,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
 void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
+  /*
   seljet_genpart_collid.clear();
   seljet_genpart_pdgid.clear();
   seljet_genpart_charge.clear();
@@ -303,7 +284,9 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   seljet_pfcand_pz.clear();
   seljet_pfcand_energy.clear();
   seljet_pfcand_type.clear();
-
+*/
+  v_jet_pT_.clear();
+  v_jet_m0_.clear();
 
   edm::Handle<reco::PFJetCollection> jets;
   iEvent.getByLabel(jetCollectionT_, jets);
@@ -311,27 +294,28 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   edm::Handle<std::vector<reco::GenParticle> > genparticles;
   iEvent.getByLabel( edm::InputTag("genParticles") , genparticles);
 
-  h_dijet_jet_nJet->Fill( vJetIdxs.size() );
+  //h_dijet_jet_nJet->Fill( igned int iD = 0; iD < iGen->numberOfDaughters(); iD++ ) {JetIdxs.size() );
   // Fill branches and histogras
   for(int thisJetIdx : vJetIdxs){
     reco::PFJetRef thisJet( jets, thisJetIdx );
     if ( debug ) std::cout << " >> Jet[" << thisJetIdx << "] Pt:" << thisJet->pt() << std::endl;
+ /*
     h_dijet_jet_pT->Fill( std::abs(thisJet->pt()) );
     h_dijet_jet_E->Fill( thisJet->energy() );
     h_dijet_jet_m0->Fill( thisJet->mass() );
     h_dijet_jet_eta->Fill( thisJet->eta() );
-    vDijet_jet_pT_.push_back( std::abs(thisJet->pt()) );
-    vDijet_jet_m0_.push_back( thisJet->mass() );
-    vDijet_jet_eta_.push_back( thisJet->eta() );
+   */
+    v_jet_pT_.push_back( std::abs(thisJet->pt()) );
+    v_jet_m0_.push_back( thisJet->mass() );
 
-
+/*
     h_dijet_jet_E->Fill( thisJet->energy() );
     h_dijet_jet_m0->Fill( thisJet->mass() );
     h_dijet_jet_eta->Fill( thisJet->eta() );
     vDijet_jet_pT_.push_back( std::abs(thisJet->pt()) );
     vDijet_jet_m0_.push_back( thisJet->mass() );
     vDijet_jet_eta_.push_back( thisJet->eta() );
-/*
+
 
     seljet_px.push_back(thisJet->px());
     seljet_py.push_back(thisJet->py());
