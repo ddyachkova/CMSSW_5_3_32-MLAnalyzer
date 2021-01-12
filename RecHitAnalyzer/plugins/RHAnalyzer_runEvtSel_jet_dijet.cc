@@ -26,7 +26,7 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
   tree->Branch("gen_pT",  &v_gen_pT_);
   tree->Branch("gen_m0",   &v_gen_m0_);
 
-  tree->Branch("jetIdxs",  &v_jetIdxs);
+  tree->Branch("jetIdxs",  &v_JetIdxs);
 
   tree->Branch("dR(jet, W)",   &v_dR_jet_W);
   tree->Branch("dR(jet, b)",  &v_dR_jet_b);
@@ -128,24 +128,17 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   iEvent.getByLabel( edm::InputTag("genParticles") , genparticles);
 
   // Fill branches and histogras
-  for(int thisJetIdx : vJetIdxs){
+  for(int thisJetIdx : v_jetIdxs){
     reco::PFJetRef thisJet( jets, thisJetIdx );
     if ( debug ) std::cout << " >> Jet[" << thisJetIdx << "] Pt:" << thisJet->pt() << std::endl;
     v_jet_pT_.push_back( std::abs(thisJet->pt()) );
     v_jet_m0_.push_back( thisJet->mass() );
+    //v_gen_pT_.push_back( std::abs(iGen->pt()) );
+    //v_gen_m0_.push_back(iGen->mass() );
+
 
 }
   
-    for(int thisGenIdx : vgenIdxs){
-    reco::PFJetRef thisJet( jets, thisJetIdx );
-    if ( debug ) std::cout << " >> Jet[" << thisJetIdx << "] Pt:" << thisJet->pt() << std::endl;
-    v_jet_pT_.push_back( std::abs(thisJet->pt()) );
-    v_jet_m0_.push_back( thisJet->mass() );
-
-}
-
-      v_gen_pT_.push_back( std::abs(iGen->pt()) );
-    v_gen_m0_.push_back(iGen->mass() );
-
+    
 }
  // fillEvtSel_jet_dijet()
