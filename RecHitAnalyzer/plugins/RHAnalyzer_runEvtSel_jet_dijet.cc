@@ -57,13 +57,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   iEvent.getByLabel(genParticleCollectionT_, genParticles);
 
 
-<<<<<<< HEAD
-  v_jetIdxs.clear();
-//  v_genIdxs.clear();
-=======
-//   v_jetIdxs.clear();
-//   v_genIdxs.clear();
->>>>>>> 94d590c518e6634378263b5fd02ec552c9aca639
+  vJetIdxs.clear();
 
   v_gen_pT_.clear();
   v_gen_m0_.clear();
@@ -136,24 +130,19 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   iEvent.getByLabel( edm::InputTag("genParticles") , genparticles);
 
   // Fill branches and histogras
-<<<<<<< HEAD
-   for(int thisJetIdx : vJetIdxs){
-=======
   for(int thisJetIdx : vJetIdxs){
->>>>>>> 94d590c518e6634378263b5fd02ec552c9aca639
     reco::PFJetRef thisJet( jets, thisJetIdx );
     if ( debug ) std::cout << " >> Jet[" << thisJetIdx << "] Pt:" << thisJet->pt() << std::endl;
     v_jet_pT_.push_back( std::abs(thisJet->pt()) );
-    std::cout << "Jet pt " << thisJet->pt() << std::endl; 
     v_jet_m0_.push_back( thisJet->mass() );
-    std::cout << "Jet mass " << thisJet->mass() << std::endl; 
-
-    //v_gen_pT_.push_back( std::abs(iGen->pt()) );
-    //v_gen_m0_.push_back(iGen->mass() );
-
-
 }
-  
+  for(int thisGenIdx : vGenIdxs){
+    reco::PFJetRef thisGen( genparticles, thisGenIdx );
+    if ( debug ) std::cout << " >> Gen[" << thisGenIdx << "] Pt:" << thisGen->pt() << std::endl;
+    v_gen_pT_.push_back( std::abs(thisGen->pt()) );
+    v_gen_m0_.push_back( thisGen->mass() );
+}
+
     
 }
  // fillEvtSel_jet_dijet()
