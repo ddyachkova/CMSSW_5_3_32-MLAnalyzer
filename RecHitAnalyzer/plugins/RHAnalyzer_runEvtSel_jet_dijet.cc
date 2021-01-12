@@ -19,6 +19,10 @@ vector<float> v_dR_jet_W;
 vector<float> v_dR_jet_b;
 vector<float> v_dR_jet_genTop;
 
+TH1D *h_dR_jet_W;
+TH1D *h_dR_jet_b;
+TH1D *h_dR_jet_genTop;
+
 
 
 //Initialize branches _____________________________________________________//
@@ -38,6 +42,10 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
   tree->Branch("dR(jet, W)",   &v_dR_jet_W);
   tree->Branch("dR(jet, b)",  &v_dR_jet_b);
   tree->Branch("dR(jet, genTop)",   &v_dR_jet_genTop);
+
+  h_dR_jet_W    = fs->make<TH1D>("dR_jet_W"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
+  h_dR_jet_b    = fs->make<TH1D>("dR_jet_b"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
+  h_dR_jet_genTop    = fs->make<TH1D>("dR_jet_genTop"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
 
 } // branchesEvtSel_jet_dijet()
 
@@ -121,14 +129,21 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
         float dR_jet_b = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(1) -> eta(), iGen -> daughter(1) ->phi());
         //v_dR_jet_W.push_back(dR_jet_W);
         //v_dR_jet_b.push_back(dR_jet_b);
+        h_dR_jet_W -> Fill(dR_jet_W);
+        h_dR_jet_b -> Fill(dR_jet_b);
+
       }
       else if (abs(iGen -> daughter(0) -> pdgId()) == 5) {
         float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(1) -> eta(), iGen -> daughter(1) -> phi());
         float dR_jet_b = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) ->phi());
         //v_dR_jet_W.push_back(dR_jet_W);
         //v_dR_jet_b.push_back(dR_jet_b);
+        h_dR_jet_W -> Fill(dR_jet_W);
+        h_dR_jet_b -> Fill(dR_jet_b);
+
         }
       float dR_jet_genTop = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> eta(), iGen -> phi());
+        h_dR_jet_genTop -> Fill(dR_jet_genTop);
 
 
       //v_dR_jet_genTop.push_back(dR_jet_genTop);
