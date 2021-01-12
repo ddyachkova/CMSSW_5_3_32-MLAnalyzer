@@ -10,7 +10,7 @@ vector<float> v_gen_m0_;
 vector<float> v_jet_m0_;
 
 vector<float> v_jetIdxs;
-vector<float> v_genIdxs;
+//vector<float> v_genIdxs;
 
 vector<float> v_dR_jet_W;
 vector<float> v_dR_jet_b;
@@ -26,7 +26,7 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
   tree->Branch("gen_pT",  &v_gen_pT_);
   tree->Branch("gen_m0",   &v_gen_m0_);
 
-  tree->Branch("jetIdxs",  &v_JetIdxs);
+  tree->Branch("jetIdxs",  &v_jetIdxs);
 
   tree->Branch("dR(jet, W)",   &v_dR_jet_W);
   tree->Branch("dR(jet, b)",  &v_dR_jet_b);
@@ -58,7 +58,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
 
   v_jetIdxs.clear();
-  v_genIdxs.clear();
+//  v_genIdxs.clear();
 
   v_gen_pT_.clear();
   v_gen_m0_.clear();
@@ -90,8 +90,8 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       ir += 1;
       dR_sum +=dR;
       if ( dR > 0.8 ) continue;
-      v_jetIdxs.push_back(iJ);
-      v_genIdxs.push_back(iGen);
+      vJetIdxs.push_back(iJ);
+  //    v_genIdxs.push_back(iGen);
 
       if (abs(iGen -> daughter(0) -> pdgId()) == 24) { 
         float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) -> phi());
@@ -128,7 +128,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   iEvent.getByLabel( edm::InputTag("genParticles") , genparticles);
 
   // Fill branches and histogras
-  for(int thisJetIdx : v_jetIdxs){
+   for(int thisJetIdx : vJetIdxs){
     reco::PFJetRef thisJet( jets, thisJetIdx );
     if ( debug ) std::cout << " >> Jet[" << thisJetIdx << "] Pt:" << thisJet->pt() << std::endl;
     v_jet_pT_.push_back( std::abs(thisJet->pt()) );
