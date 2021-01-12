@@ -228,6 +228,7 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     double maxJetEta_;
     bool isTTbar_;
     std::vector<int> vJetIdxs;
+    std::vector<int> vGenIdxs;
 
 
 
