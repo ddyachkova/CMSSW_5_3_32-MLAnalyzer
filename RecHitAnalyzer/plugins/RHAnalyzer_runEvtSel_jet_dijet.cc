@@ -10,6 +10,7 @@ vector<float> v_gen_m0_;
 vector<float> v_jet_m0_;
 
 vector<float> v_jetIdxs;
+vector<float> v_genIdxs;
 
 vector<float> v_dR_jet_W;
 vector<float> v_dR_jet_b;
@@ -57,6 +58,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
 
   v_jetIdxs.clear();
+  v_genIdxs.clear();
 
   v_gen_pT_.clear();
   v_gen_m0_.clear();
@@ -89,6 +91,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       dR_sum +=dR;
       if ( dR > 0.8 ) continue;
       v_jetIdxs.push_back(iJ);
+      v_genIdxs.push_back(iGen);
 
       if (abs(iGen -> daughter(0) -> pdgId()) == 24) { 
         float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) -> phi());
@@ -130,10 +133,19 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
     if ( debug ) std::cout << " >> Jet[" << thisJetIdx << "] Pt:" << thisJet->pt() << std::endl;
     v_jet_pT_.push_back( std::abs(thisJet->pt()) );
     v_jet_m0_.push_back( thisJet->mass() );
-    v_gen_pT_.push_back( std::abs(iGen->pt()) );
-    v_gen_m0_.push_back(iGen->mass() );
-
 
 }
+  
+    for(int thisGenIdx : vgenIdxs){
+    reco::PFJetRef thisJet( jets, thisJetIdx );
+    if ( debug ) std::cout << " >> Jet[" << thisJetIdx << "] Pt:" << thisJet->pt() << std::endl;
+    v_jet_pT_.push_back( std::abs(thisJet->pt()) );
+    v_jet_m0_.push_back( thisJet->mass() );
+
+}
+
+      v_gen_pT_.push_back( std::abs(iGen->pt()) );
+    v_gen_m0_.push_back(iGen->mass() );
+
 }
  // fillEvtSel_jet_dijet()
