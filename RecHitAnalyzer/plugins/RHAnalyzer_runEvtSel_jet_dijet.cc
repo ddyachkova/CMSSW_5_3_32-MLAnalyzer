@@ -91,7 +91,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       dR_sum +=dR;
       if ( dR > 0.8 ) continue;
       vJetIdxs.push_back(iJ);
-      vGenIdxs.push_back(iGen);
+      vGenIdxs.push_back(i);
 
       if (abs(iGen -> daughter(0) -> pdgId()) == 24) { 
         float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) -> phi());
@@ -135,7 +135,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
     v_jet_m0_.push_back( thisJet->mass() );
 }
   for(int thisGenIdx : vGenIdxs){
-    reco::PFJetRef thisGen( genparticles, thisGenIdx );
+    reco::GenParticle thisGen( genparticles, thisGenIdx );
     if ( debug ) std::cout << " >> Gen[" << thisGenIdx << "] Pt:" << thisGen->pt() << std::endl;
     v_gen_pT_.push_back( std::abs(thisGen->pt()) );
     v_gen_m0_.push_back( thisGen->mass() );
