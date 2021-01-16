@@ -39,9 +39,9 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
 
   tree->Branch("jetIdxs",  &v_jetIdxs);
 
-  tree->Branch("dR(jet, W)",   &v_dR_jet_W);
-  tree->Branch("dR(jet, b)",  &v_dR_jet_b);
-  tree->Branch("dR(jet, genTop)",   &v_dR_jet_genTop);
+  tree->Branch("dR_jet_W",   &v_dR_jet_W);
+  tree->Branch("dR_jet_b",  &v_dR_jet_b);
+  tree->Branch("dR_jet_genTop",   &v_dR_jet_genTop);
 
   h_dR_jet_W    = fs->make<TH1D>("dR_jet_W"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
   h_dR_jet_b    = fs->make<TH1D>("dR_jet_b"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
@@ -91,26 +91,28 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
   // int nJet = 0;
   int i=0;
+  int gen_ind=0;
   float dR;
   float dR_sum;
   int ir=0;
   // main loop
   for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
+    gen_ind += 1;
+    //std::cout << "Gen Part Ind " << gen_ind << std::endl;
     int id = iGen->pdgId();
     if ( abs(id) != 6 ) continue;
     if ( iGen->numberOfDaughters() != 2 ) continue;
-    
-    for ( unsigned int iD = 0; iD < iGen->numberOfDaughters(); iD++ ) {
-      const reco::Candidate* topd = iGen->daughter(iD);
+    //for ( unsigned int iD = 0; iD < iGen->numberOfDaughters(); iD++ ) {
+      //const reco::Candidate* topd = iGen->daughter(iD);
       //top_daughter ->Fill(abs(topd -> pdgId()));
-      if (abs(topd -> pdgId()) != 24) continue;
-      const reco::Candidate *w = get_parent_with_stable_daughter(topd);
+      //if (abs(topd -> pdgId()) != 24) continue;
+      //const reco::Candidate *w = get_parent_with_stable_daughter(topd);
       // W daughters loop
       //for (unsigned  int iw = 0; iw < w -> numberOfDaughters(); iw++ ){
       //  const reco::Candidate *w_daughter = w -> daughter(iw);
       //  w_daughters -> Fill(std::abs(w_daughter -> pdgId()));
       //}
-    } // Top daughter loop
+    //} // Top daughter loop
 
     // Loop over reconstructed jets
     for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
@@ -122,7 +124,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       dR_sum +=dR;
       if ( dR > 0.8 ) continue;
       vJetIdxs.push_back(iJ);
-      vGenIdxs.push_back(i);
+      vGenIdxs.push_back(gen_ind);
 
       if (abs(iGen -> daughter(0) -> pdgId()) == 24) { 
         float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) -> phi());
@@ -173,16 +175,11 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   vector<float> gen_w;
   vector<float> gen_b;
 
+  //int n1 = vJetIdxs.size(); 
+  //std::cout << vJetIdxs[n1 - 1] << std::endl;
+  //int n2 = vGenIdxs.size(); 
+  //std::cout << vGenIdxs[n2 - 1] << std::endl;
   // Fill branches and histogras
-  for(int thisJetIdx : vJetIdxs){
-    reco::PFJetRef thisJet( jets, thisJetIdx );
-    if ( debug ) std::cout << " >> Jet[" << thisJetIdx << "] Pt:" << thisJet->pt() << std::endl;
-    v_jet_pT_.push_back( std::abs(thisJet->pt()));
-    v_jet_m0_.push_back( thisJet->mass() );
-    jet_eta.push_back(thisJet -> eta());
-    jet_phi.push_back(thisJet -> phi());
-    v_jet_Idxs.push_back(thisJetIdx);
-}
 
 
   for(int thisGenIdx : vGenIdxs){
@@ -191,24 +188,37 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
     v_gen_pT_.push_back( std::abs(thisGen->pt()) );
     v_gen_m0_.push_back( thisGen->mass() );
     v_gen_Idxs.push_back(thisGenIdx);
-    if (abs(thisGen -> daughter(0) -> pdgId()) == 24) { 
-        float dR_jet_W = reco::deltaR( jet_eta[thisGenIdx] , jet_phi[thisGenIdx], thisGen -> daughter(0) -> eta(), thisGen -> daughter(0) -> phi());
-        float dR_jet_b = reco::deltaR( jet_eta[thisGenIdx],  jet_phi[thisGenIdx], thisGen -> daughter(1) -> eta(), thisGen -> daughter(1) ->phi());
+    for(int thisJetIdx : vJetIdxs){
+      reco::PFJetRef thisJet( jets, thisJetIdx );
+      if ( debug ) std::cout << " >> Jet[" << thisJetIdx << "] Pt:" << thisJet->pt() << std::endl;
+      v_jet_pT_.push_back( std::abs(thisJet->pt()));
+      v_jet_m0_.push_back( thisJet->mass() );
+      //jet_eta.push_back(thisJet -> eta());
+      //jet_phi.push_back(thisJet -> phi());
+      v_jet_Idxs.push_back(thisJetIdx);
+
+     if (abs(thisGen -> daughter(0) -> pdgId()) == 24) { 
+        float dR_jet_W = reco::deltaR( thisJet -> eta(), thisJet -> phi(), thisGen -> daughter(0) -> eta(), thisGen -> daughter(0) -> phi());
+        float dR_jet_b = reco::deltaR( thisJet -> eta(), thisJet -> phi(), thisGen -> daughter(1) -> eta(), thisGen -> daughter(1) ->phi());
+        std::cout << "dr_jet_W 1" << dR_jet_W << std::endl;
+        std::cout << "dr_jet_b 1" << dR_jet_b << std::endl;
         v_dR_jet_W.push_back(dR_jet_W);
         v_dR_jet_b.push_back(dR_jet_b);
       }
       else if (abs(thisGen -> daughter(0) -> pdgId()) == 5) {
-        float dR_jet_W = reco::deltaR( jet_eta[thisGenIdx] , jet_phi[thisGenIdx], thisGen -> daughter(1) -> eta(), thisGen -> daughter(1) -> phi());
-        float dR_jet_b = reco::deltaR( jet_eta[thisGenIdx],  jet_phi[thisGenIdx], thisGen -> daughter(0) -> eta(), thisGen -> daughter(0) ->phi());
+        float dR_jet_W = reco::deltaR( thisJet -> eta(), thisJet -> phi(), thisGen -> daughter(1) -> eta(), thisGen -> daughter(1) -> phi());
+        float dR_jet_b = reco::deltaR( thisJet -> eta(), thisJet -> phi(), thisGen -> daughter(0) -> eta(), thisGen -> daughter(0) ->phi());
+        std::cout << "dr_jet_W 2" << dR_jet_W << std::endl;
+        std::cout << "dr_jet_b 2" << dR_jet_b << std::endl;
         v_dR_jet_W.push_back(dR_jet_W);
         v_dR_jet_b.push_back(dR_jet_b);
         }
-     float dR_jet_genTop = reco::deltaR( jet_eta[thisGenIdx] , jet_phi[thisGenIdx], iGen -> eta(), iGen -> phi());
-     v_dR_jet_genTop.push_back(dR_jet_genTop);
+     //float dR_jet_genTop = reco::deltaR( thisJet -> eta(), thisJet -> phi(), thisGen -> eta(), thisGen -> phi());
+     //v_dR_jet_genTop.push_back(dR_jet_genTop);
+    }
 
+  }
 
-
-}
 
     
 }
