@@ -193,7 +193,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   //iEvent.getByLabel( edm::InputTag("genParticles") , genparticles);
 
   int s = vGenIdxs.size();
-  for (int count=0; count < s+1; count ++){
+  for (int count=0; count < s; count ++){
        int GenId = vGenIdxs[count];
        int JetId = vJetIdxs[count];
        reco::PFJetRef thisJet( jets, JetId );
