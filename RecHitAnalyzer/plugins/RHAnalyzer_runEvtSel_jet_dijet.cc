@@ -83,20 +83,6 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   vJetIdxs.clear();
   vGenIdxs.clear();
 
-  v_jet_Idxs.clear();
-  v_gen_Idxs.clear();
-  
-  v_gen_pT_.clear();
-  v_gen_m0_.clear();
-
-  v_jet_pT_.clear();
-  v_jet_m0_.clear();
-
-  v_dR_jet_W.clear();
-  v_dR_jet_b.clear();
-  v_dR_jet_genTop.clear();
-  v_jetIdxs.clear(); 
-
   v_jetdR.clear();
 
   // int nJet = 0;
@@ -126,12 +112,13 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       vJetIdxs.push_back( iJ );
       vGenIdxs.push_back(gen_ind);
       v_jetdR.push_back( dR );
+      h_dR_jet_genTop -> Fill(dR);
+      h_jet_m -> Fill(iJet -> mass());
+      h_gen_m -> Fill(iGen -> mass());
       }
 
             
-      h_jet_m -> Fill(iJet -> mass());
-      h_gen_m -> Fill(iGen -> mass());
-
+/*
       if (abs(iGen -> daughter(0) -> pdgId()) == 24) { 
         float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) -> phi());
         float dR_jet_b = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(1) -> eta(), iGen -> daughter(1) ->phi());
@@ -147,15 +134,14 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
         }
       //float dR_jet_genTop = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> eta(), iGen -> phi());
-      h_dR_jet_genTop -> Fill(dR);
 
 
       //v_dR_jet_genTop.push_back(dR_jet_genTop);
-      }
+    */
+    }
  
  //     break;
       } // reco jets
-    //gen_ind += 1;
     i++;
     //dR = reco::deltaR( iGen -> daughter(1)->eta(),iGen -> daughter(0)->phi(), iGen -> daughter(1)->eta(), iGen -> daughter(1)->phi() );
  }
