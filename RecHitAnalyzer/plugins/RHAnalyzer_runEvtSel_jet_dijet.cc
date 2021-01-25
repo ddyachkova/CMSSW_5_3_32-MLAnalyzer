@@ -46,8 +46,8 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
   tree->Branch("dR_jet_b",  &v_dR_jet_b);
   tree->Branch("dR_jet_genTop",   &v_dR_jet_genTop);
 
-  h_gen_m    = fs->make<TH1D>("gen_m"  , "M", 42,  0., 450);
-  h_jet_m    = fs->make<TH1D>("jet_m"  , "M", 42,  0., 450);
+  h_gen_m    = fs->make<TH1D>("gen_m"  , "M", 84,  50., 550);
+  h_jet_m    = fs->make<TH1D>("jet_m"  , "M", 84,  0., 450);
   h_dR_jet_W    = fs->make<TH1D>("dR_jet_W"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
   h_dR_jet_b    = fs->make<TH1D>("dR_jet_b"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
   h_dR_jet_genTop    = fs->make<TH1D>("dR_jet_genTop"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
@@ -104,6 +104,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
     //std::cout << "Gen Part Ind " << gen_ind << std::endl;
     int gen_ind = iGen - genParticles-> begin();
+    //std::cout << "gen index" << gen_ind << std::endl;
     int id = iGen->pdgId();
     if ( abs(id) != 6 ) continue;
     if ( iGen->numberOfDaughters() != 2 ) continue;
@@ -127,14 +128,17 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
       ir += 1;
       dR_sum +=dR;
-      if ( dR > 0.8 ) continue;
-      std::cout << "Gen Sel eta " << iGen -> eta() << std::endl;
-      std::cout << "Jet Sel eta " << iJet -> eta() << std::endl;
+      if ( dR < 0.8 ) {
+      //std::cout << "Gen Sel eta " << iGen -> eta() << std::endl;
+      //std::cout << "Jet Sel eta " << iJet -> eta() << std::endl;
+      
+      //vJetIdxs.push_back(gen_ind);
+      
       vJetIdxs.push_back(iJ);
       vGenIdxs.push_back(gen_ind);
       h_jet_m -> Fill(iJet -> mass());
       h_gen_m -> Fill(iGen -> mass());
-      std::cout << "Gen ind " << gen_ind << std::endl;
+      std::cout << "Selected gen ind " << gen_ind << std::endl;
       std::cout << "Jet ind " << iJ << std::endl;
 
       if (abs(iGen -> daughter(0) -> pdgId()) == 24) { 
@@ -155,18 +159,18 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
         h_dR_jet_b -> Fill(dR_jet_b);
 
         }
-      float dR_jet_genTop = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> eta(), iGen -> phi());
-        h_dR_jet_genTop -> Fill(dR_jet_genTop);
+      //float dR_jet_genTop = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> eta(), iGen -> phi());
+      h_dR_jet_genTop -> Fill(dR);
 
 
       //v_dR_jet_genTop.push_back(dR_jet_genTop);
-
+      }
  
-      break;
+ //     break;
       } // reco jets
     //gen_ind += 1;
     i++;
-    dR = reco::deltaR( iGen -> daughter(1)->eta(),iGen -> daughter(0)->phi(), iGen -> daughter(1)->eta(), iGen -> daughter(1)->phi() );
+    //dR = reco::deltaR( iGen -> daughter(1)->eta(),iGen -> daughter(0)->phi(), iGen -> daughter(1)->eta(), iGen -> daughter(1)->phi() );
  }
   return true;
 }
@@ -193,7 +197,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   //iEvent.getByLabel( edm::InputTag("genParticles") , genparticles);
 
   int s = vGenIdxs.size();
-  for (int count=0; count < s+1; count ++){
+  for (int count=0; count < s; count ++){
        int GenId = vGenIdxs[count];
        int JetId = vJetIdxs[count];
        reco::PFJetRef thisJet( jets, JetId );
