@@ -20,6 +20,9 @@ vector<float> v_dR_jet_b;
 vector<float> v_dR_jet_genTop;
 
 vector<float> v_jetdR;
+vector<float> v_jetdR_W;
+vector<float> v_jetdR_b;
+
 
 
 TH1D *h_gen_m;
@@ -84,6 +87,8 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   vGenIdxs.clear();
 
   v_jetdR.clear();
+  v_jetdR_W.clear();
+  v_jetdR_b.clear();
 
   // int nJet = 0;
   int i=0;
@@ -115,31 +120,31 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       h_dR_jet_genTop -> Fill(dR);
       h_jet_m -> Fill(iJet -> mass());
       h_gen_m -> Fill(iGen -> mass());
-      }
 
-            
-/*
       if (abs(iGen -> daughter(0) -> pdgId()) == 24) { 
         float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) -> phi());
         float dR_jet_b = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(1) -> eta(), iGen -> daughter(1) ->phi());
         h_dR_jet_W -> Fill(dR_jet_W);
         h_dR_jet_b -> Fill(dR_jet_b);
-
+        v_jetdR_W.push_back( dR_jet_W );
+        v_jetdR_b.push_back( dR_jet_b );
       }
       else if (abs(iGen -> daughter(0) -> pdgId()) == 5) {
         float dR_jet_W = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(1) -> eta(), iGen -> daughter(1) -> phi());
         float dR_jet_b = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> daughter(0) -> eta(), iGen -> daughter(0) ->phi());
         h_dR_jet_W -> Fill(dR_jet_W);
         h_dR_jet_b -> Fill(dR_jet_b);
-
+        v_jetdR_W.push_back( dR_jet_W );
+        v_jetdR_b.push_back( dR_jet_b );
         }
+      }
       //float dR_jet_genTop = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> eta(), iGen -> phi());
 
 
       //v_dR_jet_genTop.push_back(dR_jet_genTop);
     
     }
- */
+ 
  //     break;
       } // reco jets
     i++;
@@ -172,6 +177,8 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
 
     reco::PFJetRef iJet( jets, vJetIdxs[iJ] );
     v_dR_jet_genTop.push_back( v_jetdR[iJ] );
+    v_dR_jet_W.push_back( v_jetdR_W[iJ] );
+    v_dR_jet_b.push_back( v_jetdR_b[iJ] );
   }
     
     /*
