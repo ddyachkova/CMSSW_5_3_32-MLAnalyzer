@@ -37,8 +37,8 @@ TH1D *h_dR_jet_genTop;
 //Initialize branches _____________________________________________________//
 void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileService> &fs ) {
 
-  tree->Branch("jet_ind",  &v_jet_Idxs);
-  tree->Branch("genpart_ind",   &v_gen_Idxs);
+  tree->Branch("jetIdx",  &v_jet_Idxs);
+  tree->Branch("genIdx",   &v_gen_Idxs);
 
   tree->Branch("jet_pT",  &v_jet_pT_);
   tree->Branch("jet_m0",   &v_jet_m0_);
@@ -140,11 +140,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       }
       //float dR_jet_genTop = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> eta(), iGen -> phi());
 
-
       //v_dR_jet_genTop.push_back(dR_jet_genTop);
-    
-    }
- 
  //     break;
       } // reco jets
     i++;
@@ -161,26 +157,33 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByLabel(genParticleCollectionT_, genParticles);
 
-  int s = vGenIdxs.size();
-  for (int count=0; count < s; count ++){
-       int GenId = vGenIdxs[count];
-       int JetId = vJetIdxs[count];
-       reco::PFJetRef thisJet( jets, JetId );
-       reco::GenParticleCollection::const_iterator thisGen = genParticles-> begin() + GenId;
-       
+  v_dR_jet_genTop.clear();
+  v_dR_jet_W.clear();
+  v_dR_jet_b.clear();
+  v_gen_pT_.clear();
+  v_gen_m0_.clear();
+  v_jet_pT_.clear();
+  v_jet_m0_.clear();
+  
+  v_jet_Idxs.clear();
+  v_gen_Idxs.clear();
+
+  for ( unsigned iG(0); iG != vGenIdxs.size(); ++iG ) {
+       reco::GenParticleCollection::const_iterator thisGen = genParticles-> begin() + vGenIdxs[iG];
        v_gen_pT_.push_back( std::abs(thisGen->pt()) );
        v_gen_m0_.push_back( thisGen->mass() );
-       v_jet_pT_.push_back( std::abs(thisJet->pt()));
-       v_jet_m0_.push_back( thisJet->mass() );
-  }     
-  for ( unsigned iJ(0); iJ != vJetIdxs.size(); ++iJ ) {
+       v_gen_Idxs.push_back(vGenIdxs[iG];);
+  }
 
-    reco::PFJetRef iJet( jets, vJetIdxs[iJ] );
+  for ( unsigned iJ(0); iJ != vJetIdxs.size(); ++iJ ) {
+    reco::PFJetRef thisJet( jets, vJetIdxs[iJ] );
     v_dR_jet_genTop.push_back( v_jetdR[iJ] );
     v_dR_jet_W.push_back( v_jetdR_W[iJ] );
     v_dR_jet_b.push_back( v_jetdR_b[iJ] );
+    v_jet_pT_.push_back( std::abs(thisJet->pt()));
+    v_jet_m0_.push_back( thisJet->mass() );
+    v_jet_Idxs.clear(vJetIdxs[iJ]);
   }
-    
     /*
        float dR_jet_genTop = reco::deltaR (thisJet -> eta(), thisJet -> phi(), thisGen -> eta(), thisGen -> phi());
        v_dR_jet_genTop.push_back(dR_jet_genTop);
