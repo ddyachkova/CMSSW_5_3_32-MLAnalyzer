@@ -109,7 +109,7 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   branchesECALstitched ( RHTree, fs );
   //branchesHCALatEBEE   ( RHTree, fs );
   //branchesTracksAtEBEE(RHTree, fs);
-  // branchesTracksAtECALstitched( RHTree, fs);
+   branchesTracksAtECALstitched( RHTree, fs);
   // branchesPFCandsAtECALstitched( RHTree, fs);
   // branchesTRKlayersAtEBEE(RHTree, fs);
   // branchesTRKlayersAtECALstitched(RHTree, fs);
@@ -185,8 +185,8 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //fillTracksAtEBEE( iEvent, iSetup );
   // for (unsigned int i=0;i<Nproj;i++)
   // {
-  //   fillTracksAtECALstitched( iEvent, iSetup, i );
-  // }
+     fillTracksAtECALstitched( iEvent, iSetup, i );
+   }
   // for (unsigned int i=0;i<Nhitproj;i++)
   // {
   //   fillTRKlayersAtECALstitched( iEvent, iSetup, i );
