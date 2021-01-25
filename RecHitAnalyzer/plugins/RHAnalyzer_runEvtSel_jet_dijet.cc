@@ -18,10 +18,12 @@ vector<float> v_jetIdxs;
 vector<float> v_dR_jet_W;
 vector<float> v_dR_jet_b;
 vector<float> v_dR_jet_genTop;
+vector<float> v_dR_jet_W_b;
 
 vector<float> v_jetdR;
 vector<float> v_jetdR_W;
 vector<float> v_jetdR_b;
+vector<float> v_jet_W_b;
 
 
 
@@ -49,7 +51,8 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
   tree->Branch("dR_jet_W",   &v_dR_jet_W);
   tree->Branch("dR_jet_b",  &v_dR_jet_b);
   tree->Branch("dR_jet_genTop",   &v_dR_jet_genTop);
-
+  tree->Branch("dR_jet_W_b",   &v_dR_jet_W_b);
+  
   h_gen_m    = fs->make<TH1D>("gen_m"  , "M", 84,  50., 550);
   h_jet_m    = fs->make<TH1D>("jet_m"  , "M", 84,  0., 450);
   h_dR_jet_W    = fs->make<TH1D>("dR_jet_W"  , "#DR;#DR;n_{top}", 25,  0., 0.087*25);
@@ -87,7 +90,8 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   v_jetdR.clear();
   v_jetdR_W.clear();
   v_jetdR_b.clear();
-
+  v_jet_W_b.clear();
+  
   // int nJet = 0;
   int i=0;
   //int gen_ind=0;
@@ -135,6 +139,9 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
         v_jetdR_W.push_back( dR_jet_W );
         v_jetdR_b.push_back( dR_jet_b );
         }
+    
+   float dR_jet_W_b = reco::deltaR( iGen -> daughter(0) -> eta(), iGen -> daughter(0) ->phi(), iGen -> daughter(1) -> eta(), iGen -> daughter(1) ->phi());
+        v_jet_W_b.push_back(dR_jet_W_b)
       }
       //float dR_jet_genTop = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> eta(), iGen -> phi());
 
@@ -165,6 +172,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   
   v_jet_Idxs.clear();
   v_gen_Idxs.clear();
+  v_dR_jet_W_b.clear();
 
   for ( unsigned iG(0); iG != vGenIdxs.size(); ++iG ) {
        reco::GenParticleCollection::const_iterator thisGen = genParticles-> begin() + vGenIdxs[iG];
@@ -178,9 +186,12 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
     v_dR_jet_genTop.push_back( v_jetdR[iJ] );
     v_dR_jet_W.push_back( v_jetdR_W[iJ] );
     v_dR_jet_b.push_back( v_jetdR_b[iJ] );
+    v_dR_jet_W_b.push_back(v_jet_W_b[iJ]);
+
     v_jet_pT_.push_back( std::abs(thisJet->pt()));
     v_jet_m0_.push_back( thisJet->mass() );
     v_jet_Idxs.push_back(vJetIdxs[iJ]);
+    
   }
     /*
        float dR_jet_genTop = reco::deltaR (thisJet -> eta(), thisJet -> phi(), thisGen -> eta(), thisGen -> phi());
