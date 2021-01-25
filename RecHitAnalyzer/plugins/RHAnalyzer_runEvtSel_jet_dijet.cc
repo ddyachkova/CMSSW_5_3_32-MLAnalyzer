@@ -89,8 +89,8 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   int i=0;
   //int gen_ind=0;
   float dR;
-  float dR_sum;
-  int ir=0;
+  //float dR_sum;
+  //int ir=0;
   // main loop
   for ( reco::GenParticleCollection::const_iterator iGen = genParticles->begin(); iGen != genParticles->end(); iGen++ ) {
     bool passedGenSel = false;
@@ -105,7 +105,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
       if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
       dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
-      if ( dR < 0.8 ) 
+      if ( dR > 0.8 ) continue;
       passedGenSel = true;
       
       if (passedGenSel) { 
@@ -137,9 +137,9 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
 
       //v_dR_jet_genTop.push_back(dR_jet_genTop);
-    */
+    
     }
- 
+ */
  //     break;
       } // reco jets
     i++;
