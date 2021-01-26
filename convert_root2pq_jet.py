@@ -102,21 +102,56 @@ for iEvt in range(iEvtStart,iEvtEnd):
     data['X_CMSII'] = np.stack([TracksAtECAL_pt, ECAL_energy, HBHE_energy], axis=0) # (3, 280, 360)
 
     # Jet attributes 
-    ys = rhTree.jetIsQuark
-    pts = rhTree.jetPt
     iphis = rhTree.jetSeed_iphi
     ietas = rhTree.jetSeed_ieta
-    pdgIds = rhTree.jetPdgIds
-    njets = len(ys)
+    
+    jetIdx = rhTree.jetIdx
+    genIdx = rhTree.genIdx
+    
+    jetPt = rhTree.jet_pT
+    genPt = rhTree.gen_pT
+    
+    jetM = rhTree.jet_m0
+    genM = rhTree.gen_m0
+    
+    dR_jet_W = rhTree.dR_jet_W
+    dR_jet_b = rhTree.dR_jet_b
+    dR_jet_genTop = rhTree.dR_jet_genTop
+    dR_jet_W_b = rhTree.dR_jet_W_b
+    
+    #ys = rhTree.jetIsQuark
+    #pts = rhTree.jetPt
+    #pdgIds = rhTree.jetPdgIds
+    njets = len(jetIdx)
+    ngens = len(genIdx)
 
     for i in range(njets):
 
-        data['y'] = ys[i]
-        data['pt'] = pts[i]
+        #data['y'] = ys[i]
+        #data['pt'] = pts[i]
         data['iphi'] = iphis[i]
         data['ieta'] = ietas[i]
-        data['pdgId'] = pdgIds[i]
+        
+        data['jetIdx'] = jetIdx[i]
+        data['jetPt'] = jetPt[i]
+        data['jetM'] = jetM[i]
+        
+        data['dR_jet_W'] = dR_jet_W[i]
+        data['dR_jet_b'] = dR_jet_b[i]
+        data['dR_jet_genTop'] = dR_jet_genTop[i]
+        data['dR_jet_W_b'] = dR_jet_W_b[i]
+        
+        #data['pdgId'] = pdgIds[i]
         data['X_jet'] = crop_jet(data['X_CMSII'], data['iphi'], data['ieta']) # (3, 125, 125)
+    
+    for j in range(ngens):
+
+        #data['y'] = ys[i]
+        #data['pt'] = pts[i]
+        
+        data['genIdx'] = genIdx[j]
+        data['genPt'] = genPt[j]
+        data['genM'] = genM[j]
 
         # Create pyarrow.Table
 
@@ -141,7 +176,8 @@ print "========================================================"
 pqIn = pq.ParquetFile(outStr)
 print(pqIn.metadata)
 print(pqIn.schema)
-X = pqIn.read_row_group(0, columns=['y','pt','iphi','ieta','pdgId']).to_pydict()
+#X = pqIn.read_row_group(0, columns=['y','pt','iphi','ieta','pdgId']).to_pydict()
+X = pqIn.read_row_group(0, columns=['iphi','ieta','jetIdx', 'genIdx', 'jenPt', 'genPt', 'jetM', 'genM', 'dR_jet_W', 'dR_jet_b', 'dR_jet_genTop', 'dR_jet_W_b']).to_pydict()
 print(X)
 #X = pqIn.read_row_group(0, columns=['X_jet.list.item.list.item.list.item']).to_pydict()['X_jet'] # read row-by-row 
 #X = pqIn.read(['X_jet.list.item.list.item.list.item', 'y']).to_pydict()['X_jet'] # read entire column(s)

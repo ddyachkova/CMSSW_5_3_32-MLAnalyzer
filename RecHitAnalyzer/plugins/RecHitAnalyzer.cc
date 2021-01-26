@@ -183,8 +183,8 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillECALstitched( iEvent, iSetup );
   //fillHCALatEBEE( iEvent, iSetup );
   //fillTracksAtEBEE( iEvent, iSetup );
-  // for (unsigned int i=0;i<Nproj;i++)
-  // {
+   for (unsigned int i=0;i<Nproj;i++)
+   {
      fillTracksAtECALstitched( iEvent, iSetup, i );
    }
   // for (unsigned int i=0;i<Nhitproj;i++)

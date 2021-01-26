@@ -141,7 +141,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
         }
     
    float dR_jet_W_b = reco::deltaR( iGen -> daughter(0) -> eta(), iGen -> daughter(0) ->phi(), iGen -> daughter(1) -> eta(), iGen -> daughter(1) ->phi());
-        v_jet_W_b.push_back(dR_jet_W_b)
+        v_jet_W_b.push_back(dR_jet_W_b);
       }
       //float dR_jet_genTop = reco::deltaR( iJet -> eta(),iJet -> phi(), iGen -> eta(), iGen -> phi());
 
