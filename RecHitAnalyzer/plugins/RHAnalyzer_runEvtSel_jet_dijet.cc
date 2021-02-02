@@ -111,14 +111,19 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       reco::PFJetRef iJet( jets, iJ );
       if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
       if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
+      float drMin = 999;
       dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
-      if ( dR > 0.8 ) continue;
+      if (dR<drMin) {
+          drMin = dR);
+        }
+
+      if ( drMin > 0.6 ) continue;
       passedGenSel = true;
       
       if (passedGenSel) { 
       vJetIdxs.push_back( iJ );
       vGenIdxs.push_back(gen_ind);
-      v_jetdR.push_back( dR );
+      v_jetdR.push_back( drMin );
 //      h_dR_jet_genTop -> Fill(dR);
 //      h_jet_m -> Fill(iJet -> mass());
 //      h_gen_m -> Fill(iGen -> mass());
