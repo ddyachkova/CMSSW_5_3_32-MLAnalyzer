@@ -114,7 +114,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       float drMin = 999;
       dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
       if (dR<drMin) {
-          drMin = dR);
+          drMin = dR;
         }
 
       if ( drMin > 0.6 ) continue;
